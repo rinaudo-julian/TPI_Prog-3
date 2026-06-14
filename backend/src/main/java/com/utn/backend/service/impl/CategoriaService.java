@@ -8,6 +8,8 @@ import com.utn.backend.repository.CategoriaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CategoriaService {
@@ -24,5 +26,11 @@ public class CategoriaService {
         categoria = categoriaRepository.save(categoria);
 
         return categoriaMapper.toDto(categoria);
+    }
+
+    public List<CategoriaResponseDTO> findAll() {
+        return categoriaRepository.findAllByEliminadoFalse().stream()
+                .map(categoriaMapper::toDto)
+                .toList();
     }
 }
