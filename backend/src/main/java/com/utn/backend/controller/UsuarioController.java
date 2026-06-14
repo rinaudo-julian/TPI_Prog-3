@@ -1,6 +1,6 @@
 package com.utn.backend.controller;
 
-import com.utn.backend.dto.UsuarioRequestDTO;
+import com.utn.backend.dto.UsuarioCreateRequestDTO;
 import com.utn.backend.dto.UsuarioResponseDTO;
 import com.utn.backend.service.impl.UsuarioService;
 import jakarta.validation.Valid;
@@ -64,7 +64,7 @@ public class UsuarioController {
                     )
             )
     })
-    public ResponseEntity<UsuarioResponseDTO> create(@Valid @RequestBody UsuarioRequestDTO requestDTO) {
+    public ResponseEntity<UsuarioResponseDTO> create(@Valid @RequestBody UsuarioCreateRequestDTO requestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.create(requestDTO));
     }
 }

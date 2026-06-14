@@ -5,8 +5,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-@Schema(name = "UsuarioRequest", description = "Datos necesarios para crear un usuario")
-public record UsuarioRequestDTO(
+@Schema(name = "UsuarioCreateRequest", description = "Datos necesarios para crear un usuario")
+public record UsuarioCreateRequestDTO(
 
         @Schema(description = "Nombre del usuario", example = "Juan")
         @NotBlank @Size(min = 2, max = 50) String nombre,

@@ -1,6 +1,6 @@
 package com.utn.backend.service.impl;
 
-import com.utn.backend.dto.UsuarioRequestDTO;
+import com.utn.backend.dto.UsuarioCreateRequestDTO;
 import com.utn.backend.dto.UsuarioResponseDTO;
 import com.utn.backend.enums.Rol;
 import com.utn.backend.mappers.UsuarioMapper;
@@ -17,7 +17,7 @@ public class UsuarioService {
     private final UsuarioMapper usuarioMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public UsuarioResponseDTO create(UsuarioRequestDTO usuarioRequestDTO) {
+    public UsuarioResponseDTO create(UsuarioCreateRequestDTO usuarioRequestDTO) {
         if (usuarioRepository.existsByEmail(usuarioRequestDTO.email())) {
             throw new IllegalStateException("El email ya está registrado");
         }
