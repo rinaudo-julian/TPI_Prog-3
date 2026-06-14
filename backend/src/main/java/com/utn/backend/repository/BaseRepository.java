@@ -19,7 +19,8 @@ public interface BaseRepository<E extends Base> extends JpaRepository<E, Long> {
     List<E> findAllByEliminadoFalse();
 
     default E findByIdOrThrow(Long id){
-        return this.findByIdAndEliminadoFalse(id).orElseThrow(ResourceNotFoundException::new);
+        return this.findByIdAndEliminadoFalse(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Entidad con id " + id + " no encontrado"));
     }
 
     Optional<E> findByIdAndEliminadoFalse(Long id);

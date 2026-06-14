@@ -33,4 +33,9 @@ public class CategoriaService {
                 .map(categoriaMapper::toDto)
                 .toList();
     }
+
+    public CategoriaResponseDTO findById(Long id) {
+        Categoria categoria = categoriaRepository.findByIdOrThrow(id);
+        return categoriaMapper.toDto(categoria);
+    }
 }
