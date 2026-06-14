@@ -1,6 +1,7 @@
 package com.utn.backend.service.impl;
 
 import com.utn.backend.dto.CategoriaCreateRequestDTO;
+import com.utn.backend.dto.CategoriaEditRequestDTO;
 import com.utn.backend.dto.CategoriaResponseDTO;
 import com.utn.backend.mappers.CategoriaMapper;
 import com.utn.backend.model.Categoria;
@@ -36,6 +37,20 @@ public class CategoriaService {
 
     public CategoriaResponseDTO findById(Long id) {
         Categoria categoria = categoriaRepository.findByIdOrThrow(id);
+        return categoriaMapper.toDto(categoria);
+    }
+
+    public CategoriaResponseDTO update(Long id, CategoriaEditRequestDTO categoriaEditRequestDTO) {
+        Categoria categoria = categoriaRepository.findByIdOrThrow(id);
+
+        if (categoriaEditRequestDTO.getNombre() != null
+                && categoriaRepository.existsByNombreAndIdNot(categoriaEditRequestDTO.getNombre(), id)) {
+            throw new IllegalStateException("Ya existe una categoría con ese nombre");
+        }
+
+        categoriaEditRequestDTO.applyTo(categoria);
+        categoria = categoriaRepository.save(categoria);
+
         return categoriaMapper.toDto(categoria);
     }
 }
