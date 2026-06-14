@@ -1,6 +1,6 @@
 package com.utn.backend.service.impl;
 
-import com.utn.backend.dto.CategoriaRequestDTO;
+import com.utn.backend.dto.CategoriaCreateRequestDTO;
 import com.utn.backend.dto.CategoriaResponseDTO;
 import com.utn.backend.mappers.CategoriaMapper;
 import com.utn.backend.model.Categoria;
@@ -14,7 +14,11 @@ public class CategoriaService {
     private final CategoriaRepository categoriaRepository;
     private final CategoriaMapper categoriaMapper;
 
-    public CategoriaResponseDTO create (CategoriaRequestDTO categoriaRequestDTO) {
+    public CategoriaResponseDTO create (CategoriaCreateRequestDTO categoriaRequestDTO) {
+        if (categoriaRepository.existsByNombre(categoriaRequestDTO.getNombre())) {
+            throw new IllegalStateException("Ya existe una categoría con ese nombre");
+        }
+
         Categoria categoria = categoriaMapper.toEntity(categoriaRequestDTO);
 
         categoria = categoriaRepository.save(categoria);
