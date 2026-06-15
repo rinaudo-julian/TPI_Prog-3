@@ -27,7 +27,7 @@ public interface BaseRepository<E extends Base> extends JpaRepository<E, Long> {
     @Transactional
     default void deleteById(Long id){
         E entity = this.findByIdOrThrow(id);
-        entity.eliminado = false;
+        entity.eliminado = true;
         save(entity);
     }
 

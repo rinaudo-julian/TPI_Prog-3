@@ -53,4 +53,8 @@ public class CategoriaService {
 
         return categoriaMapper.toDto(categoria);
     }
+
+    public void delete(Long id) {
+        categoriaRepository.deleteById(id);
+    }
 }
