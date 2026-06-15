@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -172,5 +173,34 @@ class UserControllerIntegrationTest {
                                 .andExpect(status().isNotFound())
                                 .andExpect(jsonPath("$.status").value(404))
                                 .andExpect(jsonPath("$.message").value("Recurso no encontrado"));
+        }
+
+        @Test
+        void updateShouldChangeEmailAndPasswordWhenNewEmailDoesNotExist() throws Exception {
+                Usuario usuario = new Usuario();
+                usuario.setNombre("Juan");
+                usuario.setApellido("Perez");
+                usuario.setEmail("juan.perez@mail.com");
+                usuario.setCelular("+5491122334455");
+                usuario.setContrasena("old-hash");
+                usuario.setRol(Rol.USUARIO);
+                usuario = usuarioRepository.save(usuario);
+
+                mockMvc.perform(put("/usuarios/{id}", usuario.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                                {
+                                                  "email": "juan.nuevo@mail.com",
+                                                  "password": "NuevaClave123"
+                                                }
+                                                """))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.id").value(usuario.getId()))
+                                .andExpect(jsonPath("$.mail").value("juan.nuevo@mail.com"))
+                                .andExpect(jsonPath("$.rol").value("USUARIO"));
+
+                Usuario updatedUsuario = usuarioRepository.findById(usuario.getId()).orElseThrow();
+                assertEquals("juan.nuevo@mail.com", updatedUsuario.getEmail());
+                assertTrue(passwordEncoder.matches("NuevaClave123", updatedUsuario.getContrasena()));
         }
 }

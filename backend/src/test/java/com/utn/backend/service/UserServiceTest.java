@@ -1,8 +1,10 @@
 package com.utn.backend.service;
 
 import com.utn.backend.dto.UsuarioCreateRequestDTO;
+import com.utn.backend.dto.UsuarioEditRequestDTO;
 import com.utn.backend.dto.UsuarioResponseDTO;
 import com.utn.backend.enums.Rol;
+import com.utn.backend.exception.BusinessException;
 import com.utn.backend.mappers.UsuarioMapper;
 import com.utn.backend.model.Usuario;
 import com.utn.backend.repository.UsuarioRepository;
@@ -106,6 +108,74 @@ class UserServiceTest {
         verify(usuarioRepository).existsByEmail(request.email());
         verify(usuarioRepository, never()).save(any());
         verify(usuarioMapper, never()).toEntity(any());
+        verify(passwordEncoder, never()).encode(any());
+    }
+
+    @Test
+    void updateShouldChangeEmailAndPasswordWhenNewEmailDoesNotExist() {
+        Usuario existingUsuario = new Usuario();
+        existingUsuario.setNombre("Juan");
+        existingUsuario.setApellido("Perez");
+        existingUsuario.setEmail("juan.perez@mail.com");
+        existingUsuario.setCelular("+5491122334455");
+        existingUsuario.setContrasena("old-hash");
+        existingUsuario.setRol(Rol.USUARIO);
+
+        UsuarioEditRequestDTO request = new UsuarioEditRequestDTO();
+        request.setEmail("juan.nuevo@mail.com");
+        request.setPassword("NuevaClave123");
+
+        UsuarioResponseDTO response = new UsuarioResponseDTO(
+                1L,
+                existingUsuario.getNombre(),
+                existingUsuario.getApellido(),
+                request.getEmail(),
+                existingUsuario.getCelular(),
+                Rol.USUARIO
+        );
+
+        when(usuarioRepository.findByIdOrThrow(1L)).thenReturn(existingUsuario);
+        when(usuarioRepository.existsByEmailAndIdNot(request.getEmail(), 1L)).thenReturn(false);
+        when(passwordEncoder.encode(request.getPassword())).thenReturn("hashed-new-password");
+        when(usuarioRepository.save(any(Usuario.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(usuarioMapper.toDto(any(Usuario.class))).thenReturn(response);
+
+        UsuarioResponseDTO result = usuarioService.update(1L, request);
+
+        ArgumentCaptor<Usuario> usuarioCaptor = ArgumentCaptor.forClass(Usuario.class);
+        verify(usuarioRepository).save(usuarioCaptor.capture());
+
+        Usuario savedUsuario = usuarioCaptor.getValue();
+        assertEquals("juan.nuevo@mail.com", savedUsuario.getEmail());
+        assertEquals("hashed-new-password", savedUsuario.getContrasena());
+        assertEquals(response, result);
+        verify(usuarioRepository).findByIdOrThrow(1L);
+        verify(usuarioRepository).existsByEmailAndIdNot(request.getEmail(), 1L);
+        verify(passwordEncoder).encode(request.getPassword());
+    }
+
+    @Test
+    void updateShouldThrowBusinessExceptionWhenEmailAlreadyExists() {
+        Usuario existingUsuario = new Usuario();
+        existingUsuario.setNombre("Juan");
+        existingUsuario.setApellido("Perez");
+        existingUsuario.setEmail("juan.perez@mail.com");
+        existingUsuario.setCelular("+5491122334455");
+        existingUsuario.setContrasena("old-hash");
+        existingUsuario.setRol(Rol.USUARIO);
+
+        UsuarioEditRequestDTO request = new UsuarioEditRequestDTO();
+        request.setEmail("ya.existe@mail.com");
+
+        when(usuarioRepository.findByIdOrThrow(1L)).thenReturn(existingUsuario);
+        when(usuarioRepository.existsByEmailAndIdNot(request.getEmail(), 1L)).thenReturn(true);
+
+        BusinessException exception = assertThrows(BusinessException.class, () -> usuarioService.update(1L, request));
+
+        assertEquals("El email ya está registrado", exception.getMessage());
+        verify(usuarioRepository).findByIdOrThrow(1L);
+        verify(usuarioRepository).existsByEmailAndIdNot(request.getEmail(), 1L);
+        verify(usuarioRepository, never()).save(any());
         verify(passwordEncoder, never()).encode(any());
     }
 }

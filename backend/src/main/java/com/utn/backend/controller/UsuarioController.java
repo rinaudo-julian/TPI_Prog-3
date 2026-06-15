@@ -1,6 +1,7 @@
 package com.utn.backend.controller;
 
 import com.utn.backend.dto.UsuarioCreateRequestDTO;
+import com.utn.backend.dto.UsuarioEditRequestDTO;
 import com.utn.backend.dto.UsuarioResponseDTO;
 import com.utn.backend.service.impl.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -120,6 +122,87 @@ public class UsuarioController {
     })
     public ResponseEntity<UsuarioResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(usuarioService.findById(id));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(
+            summary = "Actualizar usuario",
+            description = "Actualiza parcial o completamente los datos de un usuario sin exponer contraseñas."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Usuario actualizado correctamente",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = UsuarioResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Error de validacion en los datos enviados",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.utn.backend.dto.ValidationErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Usuario no encontrado",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.utn.backend.dto.ErrorResponseDTO.class),
+                            examples = {@ExampleObject(
+                                    name = "Usuario inexistente",
+                                    value = """
+                                            {
+                                              "status": 404,
+                                              "message": "Recurso no encontrado",
+                                              "timestamp": "2026-06-14T21:00:42.290Z"
+                                            }
+                                            """
+                            )}
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "El email ya existe",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.utn.backend.dto.ErrorResponseDTO.class),
+                            examples = {@ExampleObject(
+                                    name = "Email duplicado",
+                                    value = """
+                                            {
+                                              "status": 400,
+                                              "message": "El email ya está registrado",
+                                              "timestamp": "2026-06-14T21:00:42.290Z"
+                                            }
+                                            """
+                            )}
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.utn.backend.dto.ErrorResponseDTO.class),
+                            examples = {@ExampleObject(
+                                    name = "Error interno",
+                                    value = """
+                                            {
+                                              "status": 500,
+                                              "message": "Error interno del servidor",
+                                              "timestamp": "2026-06-14T21:00:42.290Z"
+                                            }
+                                            """
+                            )}
+                    )
+            )
+    })
+    public ResponseEntity<UsuarioResponseDTO> update(@PathVariable Long id, @Valid @RequestBody UsuarioEditRequestDTO requestDTO) {
+        return ResponseEntity.ok(usuarioService.update(id, requestDTO));
     }
 
     @PostMapping

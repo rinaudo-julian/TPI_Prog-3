@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -85,7 +86,7 @@ class UserControllerTest {
   }
 
   @Test
-  void createShouldReturn400WhenNameIsBlank() throws Exception {
+    void createShouldReturn400WhenNameIsBlank() throws Exception {
     mockMvc.perform(post("/usuarios")
         .contentType(MediaType.APPLICATION_JSON)
         .content("""
@@ -99,6 +100,6 @@ class UserControllerTest {
             """))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.status").value(400))
-        .andExpect(jsonPath("$.errors[0]").value("nombre: El nombre debe tener entre 2 y 50 caracteres"));
+        .andExpect(jsonPath("$.errors").value(hasItem("nombre: El nombre debe tener entre 2 y 50 caracteres")));
   }
 }

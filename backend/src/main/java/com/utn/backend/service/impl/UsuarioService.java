@@ -1,7 +1,9 @@
 package com.utn.backend.service.impl;
 
 import com.utn.backend.dto.UsuarioCreateRequestDTO;
+import com.utn.backend.dto.UsuarioEditRequestDTO;
 import com.utn.backend.dto.UsuarioResponseDTO;
+import com.utn.backend.exception.BusinessException;
 import com.utn.backend.enums.Rol;
 import com.utn.backend.mappers.UsuarioMapper;
 import com.utn.backend.model.Usuario;
@@ -41,6 +43,25 @@ public class UsuarioService {
 
     public UsuarioResponseDTO findById(Long id) {
         Usuario usuario = usuarioRepository.findByIdOrThrow(id);
+        return usuarioMapper.toDto(usuario);
+    }
+
+    public UsuarioResponseDTO update(Long id, UsuarioEditRequestDTO requestDTO) {
+        Usuario usuario = usuarioRepository.findByIdOrThrow(id);
+
+        if (requestDTO.getEmail() != null
+                && usuarioRepository.existsByEmailAndIdNot(requestDTO.getEmail(), id)) {
+            throw new BusinessException("El email ya está registrado");
+        }
+
+        requestDTO.applyTo(usuario);
+
+        if (requestDTO.getPassword() != null) {
+            usuario.setContrasena(passwordEncoder.encode(requestDTO.getPassword()));
+        }
+
+        usuario = usuarioRepository.save(usuario);
+
         return usuarioMapper.toDto(usuario);
     }
 }
