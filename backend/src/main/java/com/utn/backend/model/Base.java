@@ -1,23 +1,28 @@
 package com.utn.backend.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
 @MappedSuperclass
+@Getter
+@Setter
 public abstract class Base {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
-    public boolean eliminado;
+    private Long id;
+    private boolean eliminado;
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    public LocalDateTime createdAt;
+    private LocalDateTime createdAt;
     @UpdateTimestamp
     @Column(nullable = false)
-    public LocalDateTime updatedAt;
+    private LocalDateTime updatedAt;
     @Version
-    public Long version;
+    private Long version;
 }
