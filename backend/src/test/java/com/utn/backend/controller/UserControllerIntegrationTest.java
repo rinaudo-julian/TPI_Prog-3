@@ -144,4 +144,33 @@ class UserControllerIntegrationTest {
                                 .andExpect(jsonPath("$.status").value(409))
                                 .andExpect(jsonPath("$.message").value("El email ya está registrado"));
         }
+
+        @Test
+        void findByIdShouldReturnUserWhenItExists() throws Exception {
+                Usuario usuario = new Usuario();
+                usuario.setNombre("Juan");
+                usuario.setApellido("Perez");
+                usuario.setEmail("juan.perez@mail.com");
+                usuario.setCelular("+5491122334455");
+                usuario.setContrasena("hashed-user");
+                usuario.setRol(Rol.USUARIO);
+                usuario = usuarioRepository.save(usuario);
+
+                mockMvc.perform(get("/usuarios/{id}", usuario.getId()))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.id").value(usuario.getId()))
+                                .andExpect(jsonPath("$.nombre").value("Juan"))
+                                .andExpect(jsonPath("$.apellido").value("Perez"))
+                                .andExpect(jsonPath("$.mail").value("juan.perez@mail.com"))
+                                .andExpect(jsonPath("$.celular").value("+5491122334455"))
+                                .andExpect(jsonPath("$.rol").value("USUARIO"));
+        }
+
+        @Test
+        void findByIdShouldReturn404WhenUserDoesNotExist() throws Exception {
+                mockMvc.perform(get("/usuarios/{id}", 999L))
+                                .andExpect(status().isNotFound())
+                                .andExpect(jsonPath("$.status").value(404))
+                                .andExpect(jsonPath("$.message").value("Recurso no encontrado"));
+        }
 }

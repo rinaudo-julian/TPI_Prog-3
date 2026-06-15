@@ -38,4 +38,9 @@ public class UsuarioService {
                 .map(usuarioMapper::toDto)
                 .toList();
     }
+
+    public UsuarioResponseDTO findById(Long id) {
+        Usuario usuario = usuarioRepository.findByIdOrThrow(id);
+        return usuarioMapper.toDto(usuario);
+    }
 }
