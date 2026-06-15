@@ -4,6 +4,7 @@ import com.utn.backend.dto.UsuarioCreateRequestDTO;
 import com.utn.backend.dto.UsuarioResponseDTO;
 import com.utn.backend.service.impl.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,10 +14,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -24,6 +28,43 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Usuarios", description = "Operaciones para crear y administrar usuarios")
 public class UsuarioController {
     private final UsuarioService usuarioService;
+
+    @GetMapping
+    @Operation(
+            summary = "Listar usuarios",
+            description = "Retorna todos los usuarios activos del sistema sin exponer contraseñas."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Usuarios listados correctamente",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = UsuarioResponseDTO.class))
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.utn.backend.dto.ErrorResponseDTO.class),
+                            examples = {@ExampleObject(
+                                    name = "Error interno",
+                                    value = """
+                                            {
+                                              "status": 500,
+                                              "message": "Error interno del servidor",
+                                              "timestamp": "2026-06-14T21:00:42.290Z"
+                                            }
+                                            """
+                            )}
+                    )
+            )
+    })
+    public ResponseEntity<List<UsuarioResponseDTO>> findAll() {
+        return ResponseEntity.ok(usuarioService.findAll());
+    }
 
     @PostMapping
     @Operation(
