@@ -66,4 +66,35 @@ class UserControllerIntegrationTest {
         assertEquals("+5491122334455", usuario.getCelular());
         assertTrue(passwordEncoder.matches("Secreta123", usuario.getContrasena()));
     }
+
+    @Test
+    void createShouldReturn409WhenEmailAlreadyExists() throws Exception {
+        mockMvc.perform(post("/usuarios")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "nombre": "Juan",
+                                  "apellido": "Perez",
+                                  "email": "juan.perez@mail.com",
+                                  "celular": "+5491122334455",
+                                  "password": "Secreta123"
+                                }
+                                """))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/usuarios")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "nombre": "Juan",
+                                  "apellido": "Perez",
+                                  "email": "juan.perez@mail.com",
+                                  "celular": "+5491122334455",
+                                  "password": "Secreta123"
+                                }
+                                """))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.message").value("El email ya está registrado"));
+    }
 }
