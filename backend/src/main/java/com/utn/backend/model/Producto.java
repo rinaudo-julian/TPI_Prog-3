@@ -20,4 +20,12 @@ public class Producto extends Base {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
+
+    public boolean tieneStockSuficiente(int cantidad) {
+        return stock >= cantidad;
+    }
+
+    public void reducirStock(int cantidad) {
+        stock -= cantidad;
+    }
 }
