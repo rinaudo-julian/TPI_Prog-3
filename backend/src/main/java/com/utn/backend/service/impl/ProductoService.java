@@ -44,6 +44,15 @@ public class ProductoService {
         return productoMapper.toDto(producto);
     }
 
+    public List<ProductoResponseDTO> findByCategoriaId(Long categoriaId) {
+        categoriaRepository.findByIdAndEliminadoFalse(categoriaId)
+                .orElseThrow(() -> new ResourceNotFoundException("La categoría no existe"));
+
+        return productoRepository.findAllByCategoriaIdAndEliminadoFalse(categoriaId).stream()
+                .map(productoMapper::toDto)
+                .toList();
+    }
+
     public void deleteById(Long id) {
         productoRepository.deleteById(id);
     }

@@ -68,6 +68,61 @@ public class ProductoController {
         return ResponseEntity.ok(productoService.findAll());
     }
 
+    @GetMapping("/categoria/{id}")
+    @Operation(
+            summary = "Listar productos por categoria",
+            description = "Retorna todos los productos activos de una categoria incluyendo su categoria."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Productos listados correctamente",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = ProductoResponseDTO.class))
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Categoria no encontrada",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.utn.backend.dto.ErrorResponseDTO.class),
+                            examples = {@ExampleObject(
+                                    name = "Categoria inexistente",
+                                    value = """
+                                            {
+                                              "status": 404,
+                                              "message": "La categoría no existe",
+                                              "timestamp": "2026-06-14T21:00:42.290Z"
+                                            }
+                                            """
+                            )}
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.utn.backend.dto.ErrorResponseDTO.class),
+                            examples = {@ExampleObject(
+                                    name = "Error interno",
+                                    value = """
+                                            {
+                                              "status": 500,
+                                              "message": "Error interno del servidor",
+                                              "timestamp": "2026-06-14T21:00:42.290Z"
+                                            }
+                                            """
+                            )}
+                    )
+            )
+    })
+    public ResponseEntity<List<ProductoResponseDTO>> findByCategoriaId(@PathVariable Long id) {
+        return ResponseEntity.ok(productoService.findByCategoriaId(id));
+    }
+
     @GetMapping("/{id}")
     @Operation(
             summary = "Obtener producto por id",

@@ -143,6 +143,98 @@ class ProductoIntegrationTest {
     }
 
     @Test
+    void findByCategoriaIdShouldReturnOnlyProductsFromThatCategory() throws Exception {
+        Categoria electronica = new Categoria();
+        electronica.setNombre("Electronica");
+        electronica.setDescripcion("Productos electronicos");
+        electronica = categoriaRepository.save(electronica);
+
+        Categoria hogar = new Categoria();
+        hogar.setNombre("Hogar");
+        hogar.setDescripcion("Productos para el hogar");
+        hogar = categoriaRepository.save(hogar);
+
+        Producto activo1 = new Producto();
+        activo1.setNombre("Laptop Gaming Pro");
+        activo1.setDescripcion("Laptop de alto rendimiento");
+        activo1.setPrecio(1599.99);
+        activo1.setStock(25);
+        activo1.setImagen("laptop.jpg");
+        activo1.setDisponible(true);
+        activo1.setCategoria(electronica);
+        productoRepository.save(activo1);
+
+        Producto activo2 = new Producto();
+        activo2.setNombre("Mouse Gamer");
+        activo2.setDescripcion("Mouse de alto DPI");
+        activo2.setPrecio(49.99);
+        activo2.setStock(50);
+        activo2.setImagen("mouse.jpg");
+        activo2.setDisponible(false);
+        activo2.setCategoria(electronica);
+        productoRepository.save(activo2);
+
+        Producto otro = new Producto();
+        otro.setNombre("Silla de Oficina");
+        otro.setDescripcion("No debe aparecer");
+        otro.setPrecio(199.99);
+        otro.setStock(10);
+        otro.setImagen("silla.jpg");
+        otro.setDisponible(true);
+        otro.setCategoria(hogar);
+        productoRepository.save(otro);
+
+        Producto eliminado = new Producto();
+        eliminado.setNombre("Teclado Viejo");
+        eliminado.setDescripcion("Eliminado");
+        eliminado.setPrecio(29.99);
+        eliminado.setStock(5);
+        eliminado.setImagen("teclado.jpg");
+        eliminado.setDisponible(true);
+        eliminado.setCategoria(electronica);
+        eliminado.setEliminado(true);
+        productoRepository.save(eliminado);
+
+        mockMvc.perform(get("/productos/categoria/{id}", electronica.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(hasSize(2)))
+                .andExpect(jsonPath("$[*].nombre", hasItems("Laptop Gaming Pro", "Mouse Gamer")))
+                .andExpect(jsonPath("$[*].nombre", not(hasItem("Silla de Oficina"))))
+                .andExpect(jsonPath("$[*].nombre", not(hasItem("Teclado Viejo"))));
+    }
+
+    @Test
+    void findByCategoriaIdShouldReturnEmptyArrayWhenCategoryHasNoActiveProducts() throws Exception {
+        Categoria categoria = new Categoria();
+        categoria.setNombre("Electronica");
+        categoria.setDescripcion("Productos electronicos");
+        categoria = categoriaRepository.save(categoria);
+
+        Producto eliminado = new Producto();
+        eliminado.setNombre("Laptop Vieja");
+        eliminado.setDescripcion("No debe aparecer");
+        eliminado.setPrecio(999.99);
+        eliminado.setStock(3);
+        eliminado.setImagen("vieja.jpg");
+        eliminado.setDisponible(true);
+        eliminado.setCategoria(categoria);
+        eliminado.setEliminado(true);
+        productoRepository.save(eliminado);
+
+        mockMvc.perform(get("/productos/categoria/{id}", categoria.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(hasSize(0)));
+    }
+
+    @Test
+    void findByCategoriaIdShouldReturn404WhenCategoryDoesNotExist() throws Exception {
+        mockMvc.perform(get("/productos/categoria/{id}", 999L))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("La categoría no existe"));
+    }
+
+    @Test
     void deleteShouldSoftDeleteProductAndExcludeItFromListings() throws Exception {
         Categoria categoria = new Categoria();
         categoria.setNombre("Electronica");
