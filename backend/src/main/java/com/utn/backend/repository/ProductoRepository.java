@@ -9,5 +9,7 @@ import java.util.List;
 public interface ProductoRepository extends BaseRepository<Producto> {
     boolean existsByNombre(String nombre);
 
+    boolean existsByNombreAndIdNot(String nombre, Long id);
+
     List<Producto> findAllByCategoriaIdAndEliminadoFalse(Long categoriaId);
 }

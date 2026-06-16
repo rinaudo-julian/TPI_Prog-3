@@ -1,6 +1,7 @@
 package com.utn.backend.controller;
 
 import com.utn.backend.dto.ProductoCreateRequestDTO;
+import com.utn.backend.dto.ProductoEditRequestDTO;
 import com.utn.backend.dto.ProductoResponseDTO;
 import com.utn.backend.service.impl.ProductoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -176,6 +178,87 @@ public class ProductoController {
     })
     public ResponseEntity<ProductoResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(productoService.findById(id));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(
+            summary = "Actualizar producto",
+            description = "Actualiza parcial o completamente los datos de un producto existente."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Producto actualizado correctamente",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = ProductoResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Error de validacion en los datos enviados",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.utn.backend.dto.ValidationErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Producto o categoria no encontrada",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.utn.backend.dto.ErrorResponseDTO.class),
+                            examples = {@ExampleObject(
+                                    name = "Recurso inexistente",
+                                    value = """
+                                            {
+                                              "status": 404,
+                                              "message": "Recurso no encontrado",
+                                              "timestamp": "2026-06-14T21:00:42.290Z"
+                                            }
+                                            """
+                            )}
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "El producto no puede actualizarse porque el nombre ya existe",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.utn.backend.dto.ErrorResponseDTO.class),
+                            examples = {@ExampleObject(
+                                    name = "Nombre duplicado",
+                                    value = """
+                                            {
+                                              "status": 409,
+                                              "message": "Ya existe un producto con ese nombre",
+                                              "timestamp": "2026-06-14T21:00:42.290Z"
+                                            }
+                                            """
+                            )}
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.utn.backend.dto.ErrorResponseDTO.class),
+                            examples = {@ExampleObject(
+                                    name = "Error interno",
+                                    value = """
+                                            {
+                                              "status": 500,
+                                              "message": "Error interno del servidor",
+                                              "timestamp": "2026-06-14T21:00:42.290Z"
+                                            }
+                                            """
+                            )}
+                    )
+            )
+    })
+    public ResponseEntity<ProductoResponseDTO> update(@PathVariable Long id, @Valid @RequestBody ProductoEditRequestDTO requestDTO) {
+        return ResponseEntity.ok(productoService.update(id, requestDTO));
     }
 
     @DeleteMapping("/{id}")

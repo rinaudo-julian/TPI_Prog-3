@@ -11,6 +11,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -228,6 +229,100 @@ class ProductoControllerTest {
                                   "imagen": "laptop.jpg",
                                   "disponible": true,
                                   "idCategoria": 1
+                                }
+                                """.formatted(longDescription)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("Error de validación"))
+                .andExpect(jsonPath("$.errors").value(hasItem("descripcion: La descripción no puede exceder 500 caracteres")));
+    }
+
+    @Test
+    void updateShouldReturn400WhenNameHasOneCharacter() throws Exception {
+        mockMvc.perform(put("/productos/{id}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "nombre": "a"
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("Error de validación"))
+                .andExpect(jsonPath("$.errors").value(hasItem("nombre: El nombre debe tener entre 2 y 100 caracteres")));
+    }
+
+    @Test
+    void updateShouldReturn400WhenNameIsTooLong() throws Exception {
+        String longName = "a".repeat(101);
+
+        mockMvc.perform(put("/productos/{id}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "nombre": "%s"
+                                }
+                                """.formatted(longName)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("Error de validación"))
+                .andExpect(jsonPath("$.errors").value(hasItem("nombre: El nombre debe tener entre 2 y 100 caracteres")));
+    }
+
+    @Test
+    void updateShouldReturn400WhenPriceIsZero() throws Exception {
+        mockMvc.perform(put("/productos/{id}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "precio": 0
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("Error de validación"))
+                .andExpect(jsonPath("$.errors").value(hasItem("precio: El precio debe ser mayor a 0")));
+    }
+
+    @Test
+    void updateShouldReturn400WhenPriceIsNegative() throws Exception {
+        mockMvc.perform(put("/productos/{id}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "precio": -1
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("Error de validación"))
+                .andExpect(jsonPath("$.errors").value(hasItem("precio: El precio debe ser mayor a 0")));
+    }
+
+    @Test
+    void updateShouldReturn400WhenStockIsNegative() throws Exception {
+        mockMvc.perform(put("/productos/{id}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "stock": -1
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("Error de validación"))
+                .andExpect(jsonPath("$.errors").value(hasItem("stock: El stock no puede ser negativo")));
+    }
+
+    @Test
+    void updateShouldReturn400WhenDescriptionIsTooLong() throws Exception {
+        String longDescription = "a".repeat(501);
+
+        mockMvc.perform(put("/productos/{id}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "descripcion": "%s"
                                 }
                                 """.formatted(longDescription)))
                 .andExpect(status().isBadRequest())

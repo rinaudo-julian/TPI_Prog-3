@@ -3,8 +3,6 @@ package com.utn.backend.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.math.BigDecimal;
-
 @Schema(name = "ProductoResponse", description = "Respuesta con los datos de un producto")
 @Data
 public class ProductoResponseDTO {
@@ -15,7 +13,7 @@ public class ProductoResponseDTO {
     private String nombre;
 
     @Schema(description = "Precio del producto", example = "1599.99")
-    private BigDecimal precio;
+    private Double precio;
 
     @Schema(description = "Descripcion del producto", example = "Laptop de alto rendimiento")
     private String descripcion;

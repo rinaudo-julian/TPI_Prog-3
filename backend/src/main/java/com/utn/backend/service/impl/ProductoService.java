@@ -1,6 +1,7 @@
 package com.utn.backend.service.impl;
 
 import com.utn.backend.dto.ProductoCreateRequestDTO;
+import com.utn.backend.dto.ProductoEditRequestDTO;
 import com.utn.backend.dto.ProductoResponseDTO;
 import com.utn.backend.exception.ResourceNotFoundException;
 import com.utn.backend.mappers.ProductoMapper;
@@ -28,6 +29,26 @@ public class ProductoService {
         producto.setCategoria(categoria);
         producto.setDisponible(requestDTO.getDisponible() == null || requestDTO.getDisponible());
 
+        producto = productoRepository.save(producto);
+
+        return productoMapper.toDto(producto);
+    }
+
+    public ProductoResponseDTO update(Long id, ProductoEditRequestDTO requestDTO) {
+        Producto producto = productoRepository.findByIdOrThrow(id);
+
+        if (requestDTO.getNombre() != null
+                && productoRepository.existsByNombreAndIdNot(requestDTO.getNombre(), id)) {
+            throw new IllegalStateException("Ya existe un producto con ese nombre");
+        }
+
+        if (requestDTO.getIdCategoria() != null) {
+            Categoria categoria = categoriaRepository.findByIdAndEliminadoFalse(requestDTO.getIdCategoria())
+                    .orElseThrow(() -> new ResourceNotFoundException("La categoría no existe"));
+            producto.setCategoria(categoria);
+        }
+
+        requestDTO.applyTo(producto);
         producto = productoRepository.save(producto);
 
         return productoMapper.toDto(producto);
