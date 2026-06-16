@@ -38,4 +38,9 @@ public class ProductoService {
                 .map(productoMapper::toDto)
                 .toList();
     }
+
+    public ProductoResponseDTO findById(Long id) {
+        Producto producto = productoRepository.findByIdOrThrow(id);
+        return productoMapper.toDto(producto);
+    }
 }

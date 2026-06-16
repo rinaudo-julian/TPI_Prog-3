@@ -104,6 +104,45 @@ class ProductoIntegrationTest {
     }
 
     @Test
+    void findByIdShouldReturnProductWhenItExists() throws Exception {
+        Categoria categoria = new Categoria();
+        categoria.setNombre("Electronica");
+        categoria.setDescripcion("Productos electronicos");
+        categoria = categoriaRepository.save(categoria);
+
+        Producto producto = new Producto();
+        producto.setNombre("Laptop Gaming Pro");
+        producto.setDescripcion("Laptop de alto rendimiento");
+        producto.setPrecio(1599.99);
+        producto.setStock(25);
+        producto.setImagen("laptop.jpg");
+        producto.setDisponible(true);
+        producto.setCategoria(categoria);
+        producto = productoRepository.save(producto);
+
+        mockMvc.perform(get("/productos/{id}", producto.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(producto.getId()))
+                .andExpect(jsonPath("$.nombre").value("Laptop Gaming Pro"))
+                .andExpect(jsonPath("$.precio").value(1599.99))
+                .andExpect(jsonPath("$.descripcion").value("Laptop de alto rendimiento"))
+                .andExpect(jsonPath("$.stock").value(25))
+                .andExpect(jsonPath("$.imagen").value("laptop.jpg"))
+                .andExpect(jsonPath("$.disponible").value(true))
+                .andExpect(jsonPath("$.categoria.id").value(categoria.getId()))
+                .andExpect(jsonPath("$.categoria.nombre").value("Electronica"))
+                .andExpect(jsonPath("$.categoria.descripcion").value("Productos electronicos"));
+    }
+
+    @Test
+    void findByIdShouldReturn404WhenProductDoesNotExist() throws Exception {
+        mockMvc.perform(get("/productos/{id}", 999L))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("Recurso no encontrado"));
+    }
+
+    @Test
     void findAllShouldReturnOnlyActiveProductsWithCategory() throws Exception {
         Categoria categoria = new Categoria();
         categoria.setNombre("Electronica");
