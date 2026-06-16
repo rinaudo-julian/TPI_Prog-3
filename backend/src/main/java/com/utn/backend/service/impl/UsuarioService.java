@@ -64,4 +64,8 @@ public class UsuarioService {
 
         return usuarioMapper.toDto(usuario);
     }
+
+    public void deleteById(Long id) {
+        usuarioRepository.deleteById(id);
+    }
 }

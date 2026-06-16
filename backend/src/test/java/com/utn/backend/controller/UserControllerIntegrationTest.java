@@ -14,9 +14,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.Matchers.hasSize;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.not;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -112,6 +114,7 @@ class UserControllerIntegrationTest {
                 assertEquals("Perez", usuario.getApellido());
                 assertEquals("juan.perez@mail.com", usuario.getEmail());
                 assertEquals("+5491122334455", usuario.getCelular());
+                assertFalse(usuario.isEliminado());
                 assertTrue(passwordEncoder.matches("Secreta123", usuario.getContrasena()));
         }
 
@@ -170,6 +173,42 @@ class UserControllerIntegrationTest {
         @Test
         void findByIdShouldReturn404WhenUserDoesNotExist() throws Exception {
                 mockMvc.perform(get("/usuarios/{id}", 999L))
+                                .andExpect(status().isNotFound())
+                                .andExpect(jsonPath("$.status").value(404))
+                                .andExpect(jsonPath("$.message").value("Recurso no encontrado"));
+        }
+
+        @Test
+        void deleteShouldSoftDeleteUserAndReturn204() throws Exception {
+                Usuario usuario = new Usuario();
+                usuario.setNombre("Juan");
+                usuario.setApellido("Perez");
+                usuario.setEmail("juan.perez@mail.com");
+                usuario.setCelular("+5491122334455");
+                usuario.setContrasena("hashed-user");
+                usuario.setRol(Rol.USUARIO);
+                usuario = usuarioRepository.save(usuario);
+
+                mockMvc.perform(delete("/usuarios/{id}", usuario.getId()))
+                                .andExpect(status().isNoContent());
+
+                Usuario deletedUsuario = usuarioRepository.findById(usuario.getId()).orElseThrow();
+                assertTrue(deletedUsuario.isEliminado());
+        }
+
+        @Test
+        void deleteShouldReturn404WhenUserIsAlreadyDeleted() throws Exception {
+                Usuario usuario = new Usuario();
+                usuario.setNombre("Juan");
+                usuario.setApellido("Perez");
+                usuario.setEmail("juan.perez@mail.com");
+                usuario.setCelular("+5491122334455");
+                usuario.setContrasena("hashed-user");
+                usuario.setRol(Rol.USUARIO);
+                usuario.setEliminado(true);
+                usuario = usuarioRepository.save(usuario);
+
+                mockMvc.perform(delete("/usuarios/{id}", usuario.getId()))
                                 .andExpect(status().isNotFound())
                                 .andExpect(jsonPath("$.status").value(404))
                                 .andExpect(jsonPath("$.message").value("Recurso no encontrado"));
