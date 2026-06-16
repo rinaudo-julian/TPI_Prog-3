@@ -1,10 +1,14 @@
 package com.utn.backend.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 
-@Entity(name = "productos")
-public class Producto extends Base{
-    @Column(nullable = false,  unique = true)
+@Getter
+@Setter
+@Entity
+@Table(name = "productos")
+public class Producto extends Base {
+    @Column(nullable = false, unique = true)
     private String nombre;
     private String descripcion;
     @Column(nullable = false)
