@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -120,6 +121,58 @@ public class ProductoController {
     })
     public ResponseEntity<ProductoResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(productoService.findById(id));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Eliminar producto",
+            description = "Realiza una eliminacion logica de un producto existente."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Producto eliminado correctamente"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Producto no encontrado",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.utn.backend.dto.ErrorResponseDTO.class),
+                            examples = {@ExampleObject(
+                                    name = "Producto inexistente",
+                                    value = """
+                                            {
+                                              "status": 404,
+                                              "message": "Recurso no encontrado",
+                                              "timestamp": "2026-06-14T21:00:42.290Z"
+                                            }
+                                            """
+                            )}
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = com.utn.backend.dto.ErrorResponseDTO.class),
+                            examples = {@ExampleObject(
+                                    name = "Error interno",
+                                    value = """
+                                            {
+                                              "status": 500,
+                                              "message": "Error interno del servidor",
+                                              "timestamp": "2026-06-14T21:00:42.290Z"
+                                            }
+                                            """
+                            )}
+                    )
+            )
+    })
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        productoService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping

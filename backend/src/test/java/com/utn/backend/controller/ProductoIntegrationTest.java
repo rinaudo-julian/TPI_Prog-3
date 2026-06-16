@@ -143,6 +143,41 @@ class ProductoIntegrationTest {
     }
 
     @Test
+    void deleteShouldSoftDeleteProductAndExcludeItFromListings() throws Exception {
+        Categoria categoria = new Categoria();
+        categoria.setNombre("Electronica");
+        categoria.setDescripcion("Productos electronicos");
+        categoria = categoriaRepository.save(categoria);
+
+        Producto producto = new Producto();
+        producto.setNombre("Laptop Gaming Pro");
+        producto.setDescripcion("Laptop de alto rendimiento");
+        producto.setPrecio(1599.99);
+        producto.setStock(25);
+        producto.setImagen("laptop.jpg");
+        producto.setDisponible(true);
+        producto.setCategoria(categoria);
+        producto = productoRepository.save(producto);
+
+        mockMvc.perform(delete("/productos/{id}", producto.getId()))
+                .andExpect(status().isNoContent());
+
+        Producto deletedProduct = productoRepository.findById(producto.getId()).orElseThrow();
+        List<Producto> activeProducts = productoRepository.findAll();
+
+        Assertions.assertTrue(deletedProduct.isEliminado());
+        Assertions.assertEquals(0, activeProducts.size());
+    }
+
+    @Test
+    void deleteShouldReturn404WhenProductDoesNotExist() throws Exception {
+        mockMvc.perform(delete("/productos/{id}", 999L))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("Recurso no encontrado"));
+    }
+
+    @Test
     void findAllShouldReturnOnlyActiveProductsWithCategory() throws Exception {
         Categoria categoria = new Categoria();
         categoria.setNombre("Electronica");
