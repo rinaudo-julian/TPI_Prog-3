@@ -4,8 +4,7 @@ import com.utn.backend.model.Categoria;
 import com.utn.backend.model.Producto;
 import com.utn.backend.repository.CategoriaRepository;
 import com.utn.backend.repository.ProductoRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,9 +14,10 @@ import org.junit.jupiter.api.*;
 
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -101,5 +101,56 @@ class ProductoIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").value("La categoría no existe"));
+    }
+
+    @Test
+    void findAllShouldReturnOnlyActiveProductsWithCategory() throws Exception {
+        Categoria categoria = new Categoria();
+        categoria.setNombre("Electronica");
+        categoria.setDescripcion("Productos electronicos");
+        categoria = categoriaRepository.save(categoria);
+
+        Producto activo = new Producto();
+        activo.setNombre("Laptop Gaming Pro");
+        activo.setDescripcion("Laptop de alto rendimiento");
+        activo.setPrecio(1599.99);
+        activo.setStock(25);
+        activo.setImagen("laptop.jpg");
+        activo.setDisponible(true);
+        activo.setCategoria(categoria);
+        productoRepository.save(activo);
+
+        Producto eliminado = new Producto();
+        eliminado.setNombre("Laptop Vieja");
+        eliminado.setDescripcion("No debe aparecer");
+        eliminado.setPrecio(999.99);
+        eliminado.setStock(3);
+        eliminado.setImagen("vieja.jpg");
+        eliminado.setDisponible(true);
+        eliminado.setCategoria(categoria);
+        eliminado.setEliminado(true);
+        productoRepository.save(eliminado);
+
+        mockMvc.perform(get("/productos"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(hasSize(1)))
+                .andExpect(jsonPath("$[0].id").exists())
+                .andExpect(jsonPath("$[0].nombre").value("Laptop Gaming Pro"))
+                .andExpect(jsonPath("$[0].precio").value(1599.99))
+                .andExpect(jsonPath("$[0].descripcion").value("Laptop de alto rendimiento"))
+                .andExpect(jsonPath("$[0].stock").value(25))
+                .andExpect(jsonPath("$[0].imagen").value("laptop.jpg"))
+                .andExpect(jsonPath("$[0].disponible").value(true))
+                .andExpect(jsonPath("$[0].categoria.id").value(categoria.getId()))
+                .andExpect(jsonPath("$[0].categoria.nombre").value("Electronica"))
+                .andExpect(jsonPath("$[0].categoria.descripcion").value("Productos electronicos"))
+                .andExpect(jsonPath("$[*].nombre", not(hasItem("Laptop Vieja"))));
+    }
+
+    @Test
+    void findAllShouldReturnEmptyArrayWhenThereAreNoActiveProducts() throws Exception {
+        mockMvc.perform(get("/productos"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(hasSize(0)));
     }
 }

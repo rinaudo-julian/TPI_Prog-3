@@ -11,6 +11,8 @@ import com.utn.backend.repository.ProductoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ProductoService {
@@ -29,5 +31,11 @@ public class ProductoService {
         producto = productoRepository.save(producto);
 
         return productoMapper.toDto(producto);
+    }
+
+    public List<ProductoResponseDTO> findAll() {
+        return productoRepository.findAll().stream()
+                .map(productoMapper::toDto)
+                .toList();
     }
 }
