@@ -256,15 +256,13 @@ class PedidoServiceTest {
                 201L,
                 2,
                 200.0,
-                createExpectedProducto(1L, "Producto 1", 100.0, 8, true)
-        );
+                createExpectedProducto(1L, "Producto 1", 100.0, 8, true));
 
         DetallePedidoResponseDTO detalle2 = new DetallePedidoResponseDTO(
                 202L,
                 3,
                 150.0,
-                createExpectedProducto(2L, "Producto 2", 50.0, 17, true)
-        );
+                createExpectedProducto(2L, "Producto 2", 50.0, 17, true));
 
         return new PedidoResponseDTO(
                 99L,
@@ -273,11 +271,11 @@ class PedidoServiceTest {
                 350.0,
                 FormaPago.TARJETA,
                 1L,
-                List.of(detalle1, detalle2)
-        );
+                List.of(detalle1, detalle2));
     }
 
-    private ProductoResponseDTO createExpectedProducto(Long id, String nombre, double precio, int stock, boolean disponible) {
+    private ProductoResponseDTO createExpectedProducto(Long id, String nombre, double precio, int stock,
+            boolean disponible) {
         return new ProductoResponseDTO(
                 id,
                 nombre,
@@ -286,7 +284,6 @@ class PedidoServiceTest {
                 stock,
                 nombre.toLowerCase().replace(" ", "-") + ".jpg",
                 disponible,
-                null
-        );
+                null);
     }
 }

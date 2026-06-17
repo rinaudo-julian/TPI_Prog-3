@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +34,24 @@ public class PedidoController {
         @ApiResponse(responseCode = "200", description = "Pedidos listados correctamente")
         public ResponseEntity<List<PedidoResponseDTO>> findAll() {
                 return ResponseEntity.ok(pedidoService.findAll());
+        }
+
+        @GetMapping("/{id}")
+        @Operation(summary = "Obtener pedido por id", description = "Devuelve un pedido específico con sus detalles y productos asociados.")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Pedido encontrado correctamente"),
+                        @ApiResponse(responseCode = "404", description = "Pedido no encontrado", content = @Content(mediaType = "application/json", examples = {
+                                        @ExampleObject(name = "Pedido inexistente", value = """
+                                                        {
+                                                          "status": 404,
+                                                          "message": "Recurso no encontrado",
+                                                          "timestamp": "2026-06-14T21:00:42.290Z"
+                                                        }
+                                                        """)
+                        }))
+        })
+        public ResponseEntity<PedidoResponseDTO> findById(@PathVariable Long id) {
+                return ResponseEntity.ok(pedidoService.findById(id));
         }
 
         @PostMapping

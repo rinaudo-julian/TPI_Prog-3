@@ -82,4 +82,10 @@ public class PedidoService {
                 .map(pedidoMapper::toDto)
                 .toList();
     }
+
+    @Transactional
+    public PedidoResponseDTO findById(Long id) {
+        Pedido pedido = pedidoRepository.findByIdOrThrow(id);
+        return pedidoMapper.toDto(pedido);
+    }
 }
