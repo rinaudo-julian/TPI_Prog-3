@@ -1,6 +1,7 @@
 package com.utn.backend.service.impl;
 
 import com.utn.backend.dto.DetallePedidoCreateRequestDTO;
+import com.utn.backend.dto.PedidoEditRequestDTO;
 import com.utn.backend.dto.PedidoCreateRequestDTO;
 import com.utn.backend.dto.PedidoResponseDTO;
 import com.utn.backend.exception.BusinessException;
@@ -98,6 +99,15 @@ public class PedidoService {
         return pedidoRepository.findAllByUsuarioIdAndEliminadoFalse(usuarioId).stream()
                 .map(pedidoMapper::toDto)
                 .toList();
+    }
+
+    @Transactional
+    public PedidoResponseDTO update(Long id, PedidoEditRequestDTO requestDTO) {
+        Pedido pedido = pedidoRepository.findByIdOrThrow(id);
+
+        requestDTO.applyTo(pedido);
+
+        return pedidoMapper.toDto(pedido);
     }
 
     public void deleteById(Long id) {

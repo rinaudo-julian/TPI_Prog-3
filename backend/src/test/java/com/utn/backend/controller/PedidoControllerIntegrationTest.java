@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -291,6 +292,74 @@ class PedidoControllerIntegrationTest {
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.status").value(404))
         .andExpect(jsonPath("$.message").value("Entidad con id 999 no encontrado"));
+  }
+
+  @Test
+  @Transactional
+  void updateShouldChangeEstado() throws Exception {
+    SeedData seed = seedPedidoData();
+
+    createPedido(seed.usuario.getId(), seed.producto1.getId(), 2);
+
+    Pedido pedido = pedidoRepository.findAll().get(0);
+
+    mockMvc.perform(put("/pedidos/{id}", pedido.getId())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("""
+            {
+              "estado": "CONFIRMADO"
+            }
+            """))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.estado").value(Estado.CONFIRMADO.name()))
+        .andExpect(jsonPath("$.formaPago").value(FormaPago.TARJETA.name()))
+        .andExpect(jsonPath("$.total").value(200.0));
+
+    Pedido updatedPedido = pedidoRepository.findById(pedido.getId()).orElseThrow();
+    assertEquals(Estado.CONFIRMADO, updatedPedido.getEstado());
+    assertEquals(FormaPago.TARJETA, updatedPedido.getFormaPago());
+    assertEquals(1, updatedPedido.getDetallePedidos().size());
+  }
+
+  @Test
+  @Transactional
+  void updateShouldChangeOnlyFormaPago() throws Exception {
+    SeedData seed = seedPedidoData();
+
+    createPedido(seed.usuario.getId(), seed.producto1.getId(), 2);
+
+    Pedido pedido = pedidoRepository.findAll().get(0);
+
+    mockMvc.perform(put("/pedidos/{id}", pedido.getId())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("""
+            {
+              "formaPago": "TRANSFERENCIA"
+            }
+            """))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.estado").value(Estado.PENDIENTE.name()))
+        .andExpect(jsonPath("$.formaPago").value(FormaPago.TRANSFERENCIA.name()))
+        .andExpect(jsonPath("$.total").value(200.0));
+
+    Pedido updatedPedido = pedidoRepository.findById(pedido.getId()).orElseThrow();
+    assertEquals(Estado.PENDIENTE, updatedPedido.getEstado());
+    assertEquals(FormaPago.TRANSFERENCIA, updatedPedido.getFormaPago());
+    assertEquals(1, updatedPedido.getDetallePedidos().size());
+  }
+
+  @Test
+  void updateShouldReturn404WhenPedidoDoesNotExist() throws Exception {
+    mockMvc.perform(put("/pedidos/{id}", 999L)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("""
+            {
+              "estado": "CONFIRMADO"
+            }
+            """))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.status").value(404))
+        .andExpect(jsonPath("$.message").value("Recurso no encontrado"));
   }
 
   @Test
