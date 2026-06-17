@@ -9,6 +9,7 @@ import com.utn.backend.enums.Estado;
 import com.utn.backend.enums.FormaPago;
 import com.utn.backend.exception.BusinessException;
 import com.utn.backend.exception.ResourceNotFoundException;
+import com.utn.backend.mappers.PedidoMapper;
 import com.utn.backend.model.Pedido;
 import com.utn.backend.model.Producto;
 import com.utn.backend.model.Usuario;
@@ -25,6 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -35,7 +37,6 @@ import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class PedidoServiceTest {
@@ -48,6 +49,9 @@ class PedidoServiceTest {
 
     @Mock
     private ProductoRepository productoRepository;
+
+    @Mock
+    private PedidoMapper pedidoMapper;
 
     @InjectMocks
     private PedidoService pedidoService;
@@ -81,11 +85,13 @@ class PedidoServiceTest {
             });
             return pedido;
         });
+        when(pedidoMapper.toDto(any(Pedido.class))).thenReturn(createExpectedResponse());
 
         PedidoResponseDTO result = pedidoService.save(request);
 
         ArgumentCaptor<Pedido> pedidoCaptor = ArgumentCaptor.forClass(Pedido.class);
         verify(pedidoRepository).save(pedidoCaptor.capture());
+        verify(pedidoMapper).toDto(pedidoCaptor.getValue());
 
         Pedido savedPedido = pedidoCaptor.getValue();
         assertNotNull(result);
@@ -109,15 +115,20 @@ class PedidoServiceTest {
         assertDetalle(detalleProducto2, 202L, 2L, "Producto 2", 3, 150.0, 17, true);
     }
 
-    private Usuario createUsuario(Long id) {
-        Usuario usuario = new Usuario();
-        usuario.setId(id);
-        usuario.setNombre("Usuario");
-        usuario.setApellido("Test");
-        usuario.setEmail("usuario@test.com");
-        usuario.setCelular("123456789");
-        usuario.setContrasena("secret");
-        return usuario;
+    @Test
+    void saveShouldThrowWhenUserDoesNotExist() {
+        PedidoCreateRequestDTO request = createRequest(1L, createDetalleRequest(1L, 2));
+
+        when(usuarioRepository.findByIdAndEliminadoFalse(1L)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> pedidoService.save(request));
+
+        assertEquals("Entidad con id 1 no encontrado", exception.getMessage());
+        verify(usuarioRepository).findByIdAndEliminadoFalse(1L);
+        verify(productoRepository, never()).findAllById(anyCollection());
+        verify(pedidoRepository, never()).save(any());
+        verify(pedidoMapper, never()).toDto(any());
     }
 
     @Test
@@ -138,6 +149,7 @@ class PedidoServiceTest {
         verify(usuarioRepository).findByIdAndEliminadoFalse(1L);
         verify(productoRepository).findAllById(anyCollection());
         verify(pedidoRepository, never()).save(any());
+        verify(pedidoMapper, never()).toDto(any());
     }
 
     @Test
@@ -157,6 +169,7 @@ class PedidoServiceTest {
         verify(usuarioRepository).findByIdAndEliminadoFalse(1L);
         verify(productoRepository).findAllById(anyCollection());
         verify(pedidoRepository, never()).save(any());
+        verify(pedidoMapper, never()).toDto(any());
     }
 
     @Test
@@ -176,6 +189,18 @@ class PedidoServiceTest {
         verify(usuarioRepository).findByIdAndEliminadoFalse(1L);
         verify(productoRepository).findAllById(anyCollection());
         verify(pedidoRepository, never()).save(any());
+        verify(pedidoMapper, never()).toDto(any());
+    }
+
+    private Usuario createUsuario(Long id) {
+        Usuario usuario = new Usuario();
+        usuario.setId(id);
+        usuario.setNombre("Usuario");
+        usuario.setApellido("Test");
+        usuario.setEmail("usuario@test.com");
+        usuario.setCelular("123456789");
+        usuario.setContrasena("secret");
+        return usuario;
     }
 
     private void assertDetalle(DetallePedidoResponseDTO detalle,
@@ -238,4 +263,39 @@ class PedidoServiceTest {
         return request;
     }
 
+    private PedidoResponseDTO createExpectedResponse() {
+        DetallePedidoResponseDTO detalle1 = new DetallePedidoResponseDTO();
+        detalle1.setId(201L);
+        detalle1.setCantidad(2);
+        detalle1.setSubtotal(200.0);
+        detalle1.setProducto(createExpectedProducto(1L, "Producto 1", 100.0, 8, true));
+
+        DetallePedidoResponseDTO detalle2 = new DetallePedidoResponseDTO();
+        detalle2.setId(202L);
+        detalle2.setCantidad(3);
+        detalle2.setSubtotal(150.0);
+        detalle2.setProducto(createExpectedProducto(2L, "Producto 2", 50.0, 17, true));
+
+        PedidoResponseDTO response = new PedidoResponseDTO();
+        response.setId(99L);
+        response.setFecha(LocalDate.now());
+        response.setEstado(Estado.PENDIENTE);
+        response.setTotal(350.0);
+        response.setFormaPago(FormaPago.TARJETA);
+        response.setIdUsuario(1L);
+        response.setDetalles(List.of(detalle1, detalle2));
+        return response;
+    }
+
+    private ProductoResponseDTO createExpectedProducto(Long id, String nombre, double precio, int stock, boolean disponible) {
+        ProductoResponseDTO producto = new ProductoResponseDTO();
+        producto.setId(id);
+        producto.setNombre(nombre);
+        producto.setPrecio(precio);
+        producto.setDescripcion(nombre + " descripcion");
+        producto.setStock(stock);
+        producto.setImagen(nombre.toLowerCase().replace(" ", "-") + ".jpg");
+        producto.setDisponible(disponible);
+        return producto;
+    }
 }
