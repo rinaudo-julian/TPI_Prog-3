@@ -121,22 +121,20 @@ class UserServiceTest {
         existingUsuario.setContrasena("old-hash");
         existingUsuario.setRol(Rol.USUARIO);
 
-        UsuarioEditRequestDTO request = new UsuarioEditRequestDTO();
-        request.setEmail("juan.nuevo@mail.com");
-        request.setPassword("NuevaClave123");
+        UsuarioEditRequestDTO request = new UsuarioEditRequestDTO(null, null, "juan.nuevo@mail.com", null, "NuevaClave123");
 
         UsuarioResponseDTO response = new UsuarioResponseDTO(
                 1L,
                 existingUsuario.getNombre(),
                 existingUsuario.getApellido(),
-                request.getEmail(),
+                request.email(),
                 existingUsuario.getCelular(),
                 Rol.USUARIO
         );
 
         when(usuarioRepository.findByIdOrThrow(1L)).thenReturn(existingUsuario);
-        when(usuarioRepository.existsByEmailAndIdNot(request.getEmail(), 1L)).thenReturn(false);
-        when(passwordEncoder.encode(request.getPassword())).thenReturn("hashed-new-password");
+        when(usuarioRepository.existsByEmailAndIdNot(request.email(), 1L)).thenReturn(false);
+        when(passwordEncoder.encode(request.password())).thenReturn("hashed-new-password");
         when(usuarioRepository.save(any(Usuario.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(usuarioMapper.toDto(any(Usuario.class))).thenReturn(response);
 
@@ -150,8 +148,8 @@ class UserServiceTest {
         assertEquals("hashed-new-password", savedUsuario.getContrasena());
         assertEquals(response, result);
         verify(usuarioRepository).findByIdOrThrow(1L);
-        verify(usuarioRepository).existsByEmailAndIdNot(request.getEmail(), 1L);
-        verify(passwordEncoder).encode(request.getPassword());
+        verify(usuarioRepository).existsByEmailAndIdNot(request.email(), 1L);
+        verify(passwordEncoder).encode(request.password());
     }
 
     @Test
@@ -164,17 +162,16 @@ class UserServiceTest {
         existingUsuario.setContrasena("old-hash");
         existingUsuario.setRol(Rol.USUARIO);
 
-        UsuarioEditRequestDTO request = new UsuarioEditRequestDTO();
-        request.setEmail("ya.existe@mail.com");
+        UsuarioEditRequestDTO request = new UsuarioEditRequestDTO(null, null, "ya.existe@mail.com", null, null);
 
         when(usuarioRepository.findByIdOrThrow(1L)).thenReturn(existingUsuario);
-        when(usuarioRepository.existsByEmailAndIdNot(request.getEmail(), 1L)).thenReturn(true);
+        when(usuarioRepository.existsByEmailAndIdNot(request.email(), 1L)).thenReturn(true);
 
         BusinessException exception = assertThrows(BusinessException.class, () -> usuarioService.update(1L, request));
 
         assertEquals("El email ya está registrado", exception.getMessage());
         verify(usuarioRepository).findByIdOrThrow(1L);
-        verify(usuarioRepository).existsByEmailAndIdNot(request.getEmail(), 1L);
+        verify(usuarioRepository).existsByEmailAndIdNot(request.email(), 1L);
         verify(usuarioRepository, never()).save(any());
         verify(passwordEncoder, never()).encode(any());
     }

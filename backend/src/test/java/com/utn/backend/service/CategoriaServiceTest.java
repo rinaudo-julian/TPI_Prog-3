@@ -38,27 +38,22 @@ class CategoriaServiceTest {
 
     @Test
     void createShouldSaveCategoryWhenNameDoesNotExist() {
-        CategoriaCreateRequestDTO request = new CategoriaCreateRequestDTO();
-        request.setNombre("Electronica");
-        request.setDescripcion("Productos electronicos");
+        CategoriaCreateRequestDTO request = new CategoriaCreateRequestDTO("Electronica", "Productos electronicos");
 
         Categoria categoria = new Categoria();
-        categoria.setNombre(request.getNombre());
-        categoria.setDescripcion(request.getDescripcion());
+        categoria.setNombre(request.nombre());
+        categoria.setDescripcion(request.descripcion());
 
-        CategoriaResponseDTO response = new CategoriaResponseDTO();
-        response.setId(1L);
-        response.setNombre(request.getNombre());
-        response.setDescripcion(request.getDescripcion());
+        CategoriaResponseDTO response = new CategoriaResponseDTO(1L, request.nombre(), request.descripcion());
 
-        when(categoriaRepository.existsByNombre(request.getNombre())).thenReturn(false);
+        when(categoriaRepository.existsByNombre(request.nombre())).thenReturn(false);
         when(categoriaMapper.toEntity(request)).thenReturn(categoria);
         when(categoriaRepository.save(categoria)).thenReturn(categoria);
         when(categoriaMapper.toDto(categoria)).thenReturn(response);
 
         CategoriaResponseDTO result = categoriaService.create(request);
 
-        verify(categoriaRepository).existsByNombre(request.getNombre());
+        verify(categoriaRepository).existsByNombre(request.nombre());
         verify(categoriaRepository).save(categoria);
         verify(categoriaMapper).toEntity(request);
         verify(categoriaMapper).toDto(categoria);
@@ -67,15 +62,14 @@ class CategoriaServiceTest {
 
     @Test
     void createShouldThrowWhenNameAlreadyExists() {
-        CategoriaCreateRequestDTO request = new CategoriaCreateRequestDTO();
-        request.setNombre("Electronica");
+        CategoriaCreateRequestDTO request = new CategoriaCreateRequestDTO("Electronica", null);
 
-        when(categoriaRepository.existsByNombre(request.getNombre())).thenReturn(true);
+        when(categoriaRepository.existsByNombre(request.nombre())).thenReturn(true);
 
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> categoriaService.create(request));
 
         assertEquals("Ya existe una categoría con ese nombre", exception.getMessage());
-        verify(categoriaRepository).existsByNombre(request.getNombre());
+        verify(categoriaRepository).existsByNombre(request.nombre());
         verify(categoriaMapper, never()).toEntity(any());
         verify(categoriaRepository, never()).save(any());
     }
@@ -90,15 +84,9 @@ class CategoriaServiceTest {
         categoria2.setNombre("Hogar");
         categoria2.setDescripcion("Productos para el hogar");
 
-        CategoriaResponseDTO dto1 = new CategoriaResponseDTO();
-        dto1.setId(1L);
-        dto1.setNombre(categoria1.getNombre());
-        dto1.setDescripcion(categoria1.getDescripcion());
+        CategoriaResponseDTO dto1 = new CategoriaResponseDTO(1L, categoria1.getNombre(), categoria1.getDescripcion());
 
-        CategoriaResponseDTO dto2 = new CategoriaResponseDTO();
-        dto2.setId(2L);
-        dto2.setNombre(categoria2.getNombre());
-        dto2.setDescripcion(categoria2.getDescripcion());
+        CategoriaResponseDTO dto2 = new CategoriaResponseDTO(2L, categoria2.getNombre(), categoria2.getDescripcion());
 
         when(categoriaRepository.findAllByEliminadoFalse()).thenReturn(List.of(categoria1, categoria2));
         when(categoriaMapper.toDto(categoria1)).thenReturn(dto1);
@@ -118,10 +106,7 @@ class CategoriaServiceTest {
         categoria.setNombre("Electronica");
         categoria.setDescripcion("Productos electronicos");
 
-        CategoriaResponseDTO response = new CategoriaResponseDTO();
-        response.setId(1L);
-        response.setNombre(categoria.getNombre());
-        response.setDescripcion(categoria.getDescripcion());
+        CategoriaResponseDTO response = new CategoriaResponseDTO(1L, categoria.getNombre(), categoria.getDescripcion());
 
         when(categoriaRepository.findByIdOrThrow(1L)).thenReturn(categoria);
         when(categoriaMapper.toDto(categoria)).thenReturn(response);
@@ -146,8 +131,7 @@ class CategoriaServiceTest {
 
     @Test
     void updateShouldThrowWhenCategoryIdDoesNotExist() {
-        CategoriaEditRequestDTO request = new CategoriaEditRequestDTO();
-        request.setNombre("Hogar");
+        CategoriaEditRequestDTO request = new CategoriaEditRequestDTO("Hogar", null);
 
         when(categoriaRepository.findByIdOrThrow(1L)).thenThrow(new ResourceNotFoundException());
 
@@ -165,17 +149,12 @@ class CategoriaServiceTest {
         categoria.setNombre("Electronica");
         categoria.setDescripcion("Productos electronicos");
 
-        CategoriaEditRequestDTO request = new CategoriaEditRequestDTO();
-        request.setNombre("Hogar");
-        request.setDescripcion("Productos para el hogar");
+        CategoriaEditRequestDTO request = new CategoriaEditRequestDTO("Hogar", "Productos para el hogar");
 
-        CategoriaResponseDTO response = new CategoriaResponseDTO();
-        response.setId(1L);
-        response.setNombre(request.getNombre());
-        response.setDescripcion(request.getDescripcion());
+        CategoriaResponseDTO response = new CategoriaResponseDTO(1L, request.nombre(), request.descripcion());
 
         when(categoriaRepository.findByIdOrThrow(1L)).thenReturn(categoria);
-        when(categoriaRepository.existsByNombreAndIdNot(request.getNombre(), 1L)).thenReturn(false);
+        when(categoriaRepository.existsByNombreAndIdNot(request.nombre(), 1L)).thenReturn(false);
         when(categoriaRepository.save(categoria)).thenReturn(categoria);
         when(categoriaMapper.toDto(categoria)).thenReturn(response);
 
@@ -185,8 +164,8 @@ class CategoriaServiceTest {
         verify(categoriaRepository).save(captor.capture());
         Categoria saved = captor.getValue();
 
-        assertEquals(request.getNombre(), saved.getNombre());
-        assertEquals(request.getDescripcion(), saved.getDescripcion());
+        assertEquals(request.nombre(), saved.getNombre());
+        assertEquals(request.descripcion(), saved.getDescripcion());
         assertEquals(response, result);
     }
 
@@ -196,17 +175,16 @@ class CategoriaServiceTest {
         categoria.setNombre("Electronica");
         categoria.setDescripcion("Productos electronicos");
 
-        CategoriaEditRequestDTO request = new CategoriaEditRequestDTO();
-        request.setNombre("Hogar");
+        CategoriaEditRequestDTO request = new CategoriaEditRequestDTO("Hogar", null);
 
         when(categoriaRepository.findByIdOrThrow(1L)).thenReturn(categoria);
-        when(categoriaRepository.existsByNombreAndIdNot(request.getNombre(), 1L)).thenReturn(true);
+        when(categoriaRepository.existsByNombreAndIdNot(request.nombre(), 1L)).thenReturn(true);
 
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> categoriaService.update(1L, request));
 
         assertEquals("Ya existe una categoría con ese nombre", exception.getMessage());
         verify(categoriaRepository).findByIdOrThrow(1L);
-        verify(categoriaRepository).existsByNombreAndIdNot(request.getNombre(), 1L);
+        verify(categoriaRepository).existsByNombreAndIdNot(request.nombre(), 1L);
         verify(categoriaRepository, never()).save(any());
     }
 

@@ -49,15 +49,15 @@ public class UsuarioService {
     public UsuarioResponseDTO update(Long id, UsuarioEditRequestDTO requestDTO) {
         Usuario usuario = usuarioRepository.findByIdOrThrow(id);
 
-        if (requestDTO.getEmail() != null
-                && usuarioRepository.existsByEmailAndIdNot(requestDTO.getEmail(), id)) {
+        if (requestDTO.email() != null
+                && usuarioRepository.existsByEmailAndIdNot(requestDTO.email(), id)) {
             throw new BusinessException("El email ya está registrado");
         }
 
         requestDTO.applyTo(usuario);
 
-        if (requestDTO.getPassword() != null) {
-            usuario.setContrasena(passwordEncoder.encode(requestDTO.getPassword()));
+        if (requestDTO.password() != null) {
+            usuario.setContrasena(passwordEncoder.encode(requestDTO.password()));
         }
 
         usuario = usuarioRepository.save(usuario);

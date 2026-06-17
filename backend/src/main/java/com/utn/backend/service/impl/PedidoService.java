@@ -31,14 +31,14 @@ public class PedidoService {
 
     @Transactional
     public PedidoResponseDTO save(PedidoCreateRequestDTO requestDTO) {
-        var usuario = usuarioRepository.findByIdAndEliminadoFalse(requestDTO.getIdUsuario())
+        var usuario = usuarioRepository.findByIdAndEliminadoFalse(requestDTO.idUsuario())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Entidad con id " + requestDTO.getIdUsuario() + " no encontrado"));
+                        "Entidad con id " + requestDTO.idUsuario() + " no encontrado"));
 
-        Map<Long, Integer> cantidadPorProducto = requestDTO.getDetallePedido().stream()
+        Map<Long, Integer> cantidadPorProducto = requestDTO.detallePedido().stream()
                 .collect(Collectors.toMap(
-                        DetallePedidoCreateRequestDTO::getIdProducto,
-                        DetallePedidoCreateRequestDTO::getCantidad,
+                        DetallePedidoCreateRequestDTO::idProducto,
+                        DetallePedidoCreateRequestDTO::cantidad,
                         Integer::sum,
                         LinkedHashMap::new));
 
@@ -46,8 +46,8 @@ public class PedidoService {
 
         Pedido pedido = new Pedido();
         pedido.setFecha(LocalDate.now());
-        pedido.setEstado(requestDTO.getEstado());
-        pedido.setFormaPago(requestDTO.getFormaPago());
+        pedido.setEstado(requestDTO.estado());
+        pedido.setFormaPago(requestDTO.formaPago());
         pedido.setUsuario(usuario);
 
         for (Producto producto : productos) {

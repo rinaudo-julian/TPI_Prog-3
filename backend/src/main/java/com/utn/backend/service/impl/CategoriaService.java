@@ -18,7 +18,7 @@ public class CategoriaService {
     private final CategoriaMapper categoriaMapper;
 
     public CategoriaResponseDTO create (CategoriaCreateRequestDTO categoriaRequestDTO) {
-        if (categoriaRepository.existsByNombre(categoriaRequestDTO.getNombre())) {
+        if (categoriaRepository.existsByNombre(categoriaRequestDTO.nombre())) {
             throw new IllegalStateException("Ya existe una categoría con ese nombre");
         }
 
@@ -43,8 +43,8 @@ public class CategoriaService {
     public CategoriaResponseDTO update(Long id, CategoriaEditRequestDTO categoriaEditRequestDTO) {
         Categoria categoria = categoriaRepository.findByIdOrThrow(id);
 
-        if (categoriaEditRequestDTO.getNombre() != null
-                && categoriaRepository.existsByNombreAndIdNot(categoriaEditRequestDTO.getNombre(), id)) {
+        if (categoriaEditRequestDTO.nombre() != null
+                && categoriaRepository.existsByNombreAndIdNot(categoriaEditRequestDTO.nombre(), id)) {
             throw new IllegalStateException("Ya existe una categoría con ese nombre");
         }
 

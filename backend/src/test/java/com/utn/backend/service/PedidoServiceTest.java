@@ -62,13 +62,9 @@ class PedidoServiceTest {
         Producto producto1 = createProducto(1L, "Producto 1", 100.0, 10, true);
         Producto producto2 = createProducto(2L, "Producto 2", 50.0, 20, true);
 
-        PedidoCreateRequestDTO request = new PedidoCreateRequestDTO();
-        request.setIdUsuario(1L);
-        request.setEstado(Estado.PENDIENTE);
-        request.setFormaPago(FormaPago.TARJETA);
-        request.setDetallePedido(List.of(
+        PedidoCreateRequestDTO request = createRequest(1L,
                 createDetalleRequest(1L, 2),
-                createDetalleRequest(2L, 3)));
+                createDetalleRequest(2L, 3));
 
         when(usuarioRepository.findByIdAndEliminadoFalse(1L)).thenReturn(Optional.of(usuario));
         when(productoRepository.findAllById(anyCollection())).thenReturn(List.of(producto1, producto2));
@@ -95,12 +91,12 @@ class PedidoServiceTest {
 
         Pedido savedPedido = pedidoCaptor.getValue();
         assertNotNull(result);
-        assertEquals(Estado.PENDIENTE, result.getEstado());
-        assertEquals(FormaPago.TARJETA, result.getFormaPago());
-        assertEquals(1L, result.getIdUsuario());
-        assertEquals(LocalDate.now(), result.getFecha());
-        assertEquals(350.0, result.getTotal());
-        assertEquals(99L, result.getId());
+        assertEquals(Estado.PENDIENTE, result.estado());
+        assertEquals(FormaPago.TARJETA, result.formaPago());
+        assertEquals(1L, result.idUsuario());
+        assertEquals(LocalDate.now(), result.fecha());
+        assertEquals(350.0, result.total());
+        assertEquals(99L, result.id());
         assertEquals(99L, savedPedido.getId());
         assertEquals(350.0, savedPedido.getTotal());
         assertEquals(2, savedPedido.getDetallePedidos().size());
@@ -108,8 +104,8 @@ class PedidoServiceTest {
         assertEquals(8, producto1.getStock());
         assertEquals(17, producto2.getStock());
 
-        DetallePedidoResponseDTO detalleProducto1 = findDetalle(result.getDetalles(), 1L);
-        DetallePedidoResponseDTO detalleProducto2 = findDetalle(result.getDetalles(), 2L);
+        DetallePedidoResponseDTO detalleProducto1 = findDetalle(result.detalles(), 1L);
+        DetallePedidoResponseDTO detalleProducto2 = findDetalle(result.detalles(), 2L);
 
         assertDetalle(detalleProducto1, 201L, 1L, "Producto 1", 2, 200.0, 8, true);
         assertDetalle(detalleProducto2, 202L, 2L, "Producto 2", 3, 150.0, 17, true);
@@ -212,25 +208,25 @@ class PedidoServiceTest {
             int expectedStock,
             boolean expectedDisponible) {
         assertNotNull(detalle);
-        assertEquals(expectedDetalleId, detalle.getId());
-        assertEquals(expectedCantidad, detalle.getCantidad());
-        assertEquals(expectedSubtotal, detalle.getSubtotal());
+        assertEquals(expectedDetalleId, detalle.id());
+        assertEquals(expectedCantidad, detalle.cantidad());
+        assertEquals(expectedSubtotal, detalle.subtotal());
 
-        ProductoResponseDTO producto = detalle.getProducto();
+        ProductoResponseDTO producto = detalle.producto();
         assertNotNull(producto);
-        assertEquals(expectedId, producto.getId());
-        assertEquals(expectedNombre, producto.getNombre());
-        assertEquals(expectedSubtotal / expectedCantidad, producto.getPrecio());
-        assertEquals(expectedNombre + " descripcion", producto.getDescripcion());
-        assertEquals(expectedStock, producto.getStock());
-        assertEquals(expectedNombre.toLowerCase().replace(" ", "-") + ".jpg", producto.getImagen());
-        assertEquals(expectedDisponible, producto.isDisponible());
-        assertNull(producto.getCategoria());
+        assertEquals(expectedId, producto.id());
+        assertEquals(expectedNombre, producto.nombre());
+        assertEquals(expectedSubtotal / expectedCantidad, producto.precio());
+        assertEquals(expectedNombre + " descripcion", producto.descripcion());
+        assertEquals(expectedStock, producto.stock());
+        assertEquals(expectedNombre.toLowerCase().replace(" ", "-") + ".jpg", producto.imagen());
+        assertEquals(expectedDisponible, producto.disponible());
+        assertNull(producto.categoria());
     }
 
     private DetallePedidoResponseDTO findDetalle(List<DetallePedidoResponseDTO> detalles, Long productoId) {
         return detalles.stream()
-                .filter(detalle -> detalle.getProducto() != null && productoId.equals(detalle.getProducto().getId()))
+                .filter(detalle -> detalle.producto() != null && productoId.equals(detalle.producto().id()))
                 .findFirst()
                 .orElseThrow();
     }
@@ -248,54 +244,49 @@ class PedidoServiceTest {
     }
 
     private DetallePedidoCreateRequestDTO createDetalleRequest(Long idProducto, int cantidad) {
-        DetallePedidoCreateRequestDTO detalle = new DetallePedidoCreateRequestDTO();
-        detalle.setIdProducto(idProducto);
-        detalle.setCantidad(cantidad);
-        return detalle;
+        return new DetallePedidoCreateRequestDTO(idProducto, cantidad);
     }
 
     private PedidoCreateRequestDTO createRequest(Long idUsuario, DetallePedidoCreateRequestDTO... detalles) {
-        PedidoCreateRequestDTO request = new PedidoCreateRequestDTO();
-        request.setIdUsuario(idUsuario);
-        request.setEstado(Estado.PENDIENTE);
-        request.setFormaPago(FormaPago.TARJETA);
-        request.setDetallePedido(List.of(detalles));
-        return request;
+        return new PedidoCreateRequestDTO(Estado.PENDIENTE, FormaPago.TARJETA, idUsuario, List.of(detalles));
     }
 
     private PedidoResponseDTO createExpectedResponse() {
-        DetallePedidoResponseDTO detalle1 = new DetallePedidoResponseDTO();
-        detalle1.setId(201L);
-        detalle1.setCantidad(2);
-        detalle1.setSubtotal(200.0);
-        detalle1.setProducto(createExpectedProducto(1L, "Producto 1", 100.0, 8, true));
+        DetallePedidoResponseDTO detalle1 = new DetallePedidoResponseDTO(
+                201L,
+                2,
+                200.0,
+                createExpectedProducto(1L, "Producto 1", 100.0, 8, true)
+        );
 
-        DetallePedidoResponseDTO detalle2 = new DetallePedidoResponseDTO();
-        detalle2.setId(202L);
-        detalle2.setCantidad(3);
-        detalle2.setSubtotal(150.0);
-        detalle2.setProducto(createExpectedProducto(2L, "Producto 2", 50.0, 17, true));
+        DetallePedidoResponseDTO detalle2 = new DetallePedidoResponseDTO(
+                202L,
+                3,
+                150.0,
+                createExpectedProducto(2L, "Producto 2", 50.0, 17, true)
+        );
 
-        PedidoResponseDTO response = new PedidoResponseDTO();
-        response.setId(99L);
-        response.setFecha(LocalDate.now());
-        response.setEstado(Estado.PENDIENTE);
-        response.setTotal(350.0);
-        response.setFormaPago(FormaPago.TARJETA);
-        response.setIdUsuario(1L);
-        response.setDetalles(List.of(detalle1, detalle2));
-        return response;
+        return new PedidoResponseDTO(
+                99L,
+                LocalDate.now(),
+                Estado.PENDIENTE,
+                350.0,
+                FormaPago.TARJETA,
+                1L,
+                List.of(detalle1, detalle2)
+        );
     }
 
     private ProductoResponseDTO createExpectedProducto(Long id, String nombre, double precio, int stock, boolean disponible) {
-        ProductoResponseDTO producto = new ProductoResponseDTO();
-        producto.setId(id);
-        producto.setNombre(nombre);
-        producto.setPrecio(precio);
-        producto.setDescripcion(nombre + " descripcion");
-        producto.setStock(stock);
-        producto.setImagen(nombre.toLowerCase().replace(" ", "-") + ".jpg");
-        producto.setDisponible(disponible);
-        return producto;
+        return new ProductoResponseDTO(
+                id,
+                nombre,
+                precio,
+                nombre + " descripcion",
+                stock,
+                nombre.toLowerCase().replace(" ", "-") + ".jpg",
+                disponible,
+                null
+        );
     }
 }

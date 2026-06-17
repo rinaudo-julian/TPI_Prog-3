@@ -22,12 +22,12 @@ public class ProductoService {
     private final ProductoMapper productoMapper;
 
     public ProductoResponseDTO save(ProductoCreateRequestDTO requestDTO) {
-        Categoria categoria = categoriaRepository.findByIdAndEliminadoFalse(requestDTO.getIdCategoria())
+        Categoria categoria = categoriaRepository.findByIdAndEliminadoFalse(requestDTO.idCategoria())
                 .orElseThrow(() -> new ResourceNotFoundException("La categoría no existe"));
 
         Producto producto = productoMapper.toEntity(requestDTO);
         producto.setCategoria(categoria);
-        producto.setDisponible(requestDTO.getDisponible() == null || requestDTO.getDisponible());
+        producto.setDisponible(requestDTO.disponible() == null || requestDTO.disponible());
 
         producto = productoRepository.save(producto);
 
@@ -37,13 +37,13 @@ public class ProductoService {
     public ProductoResponseDTO update(Long id, ProductoEditRequestDTO requestDTO) {
         Producto producto = productoRepository.findByIdOrThrow(id);
 
-        if (requestDTO.getNombre() != null
-                && productoRepository.existsByNombreAndIdNot(requestDTO.getNombre(), id)) {
+        if (requestDTO.nombre() != null
+                && productoRepository.existsByNombreAndIdNot(requestDTO.nombre(), id)) {
             throw new IllegalStateException("Ya existe un producto con ese nombre");
         }
 
-        if (requestDTO.getIdCategoria() != null) {
-            Categoria categoria = categoriaRepository.findByIdAndEliminadoFalse(requestDTO.getIdCategoria())
+        if (requestDTO.idCategoria() != null) {
+            Categoria categoria = categoriaRepository.findByIdAndEliminadoFalse(requestDTO.idCategoria())
                     .orElseThrow(() -> new ResourceNotFoundException("La categoría no existe"));
             producto.setCategoria(categoria);
         }

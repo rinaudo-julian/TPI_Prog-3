@@ -47,25 +47,30 @@ class ProductoServiceTest {
         Categoria categoria = createCategoria(1L, "Electronica", "Productos electronicos");
         Producto producto = createProducto(1L, categoria);
 
-        ProductoEditRequestDTO request = new ProductoEditRequestDTO();
-        request.setNombre("Laptop Gaming Pro X");
-        request.setPrecio(1999.99);
-        request.setDescripcion("Laptop de alto rendimiento actualizada");
-        request.setStock(30);
-        request.setImagen("laptop-x.jpg");
-        request.setDisponible(false);
-        request.setIdCategoria(1L);
+        ProductoEditRequestDTO request = new ProductoEditRequestDTO(
+                "Laptop Gaming Pro X",
+                1999.99,
+                "Laptop de alto rendimiento actualizada",
+                30,
+                "laptop-x.jpg",
+                false,
+                1L
+        );
 
         ProductoResponseDTO response = createResponse(producto, categoria);
-        response.setNombre(request.getNombre());
-        response.setPrecio(request.getPrecio());
-        response.setDescripcion(request.getDescripcion());
-        response.setStock(request.getStock());
-        response.setImagen(request.getImagen());
-        response.setDisponible(false);
+        response = new ProductoResponseDTO(
+                response.id(),
+                request.nombre(),
+                request.precio(),
+                request.descripcion(),
+                request.stock(),
+                request.imagen(),
+                false,
+                response.categoria()
+        );
 
         when(productoRepository.findByIdOrThrow(1L)).thenReturn(producto);
-        when(productoRepository.existsByNombreAndIdNot(request.getNombre(), 1L)).thenReturn(false);
+        when(productoRepository.existsByNombreAndIdNot(request.nombre(), 1L)).thenReturn(false);
         when(categoriaRepository.findByIdAndEliminadoFalse(1L)).thenReturn(java.util.Optional.of(categoria));
         when(productoRepository.save(any(Producto.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(productoMapper.toDto(any(Producto.class))).thenReturn(response);
@@ -76,11 +81,11 @@ class ProductoServiceTest {
         verify(productoRepository).save(captor.capture());
 
         Producto saved = captor.getValue();
-        assertEquals(request.getNombre(), saved.getNombre());
-        assertEquals(request.getPrecio(), saved.getPrecio());
-        assertEquals(request.getDescripcion(), saved.getDescripcion());
-        assertEquals(request.getStock(), saved.getStock());
-        assertEquals(request.getImagen(), saved.getImagen());
+        assertEquals(request.nombre(), saved.getNombre());
+        assertEquals(request.precio(), saved.getPrecio());
+        assertEquals(request.descripcion(), saved.getDescripcion());
+        assertEquals(request.stock(), saved.getStock());
+        assertEquals(request.imagen(), saved.getImagen());
         assertFalse(saved.isDisponible());
         assertEquals(categoria.getId(), saved.getCategoria().getId());
         assertEquals(response, result);
@@ -91,11 +96,10 @@ class ProductoServiceTest {
         Categoria categoria = createCategoria(1L, "Electronica", "Productos electronicos");
         Producto producto = createProducto(1L, categoria);
 
-        ProductoEditRequestDTO request = new ProductoEditRequestDTO();
-        request.setPrecio(150.0);
+        ProductoEditRequestDTO request = new ProductoEditRequestDTO(null, 150.0, null, null, null, null, null);
 
         ProductoResponseDTO response = createResponse(producto, categoria);
-        response.setPrecio(request.getPrecio());
+        response = new ProductoResponseDTO(response.id(), response.nombre(), request.precio(), response.descripcion(), response.stock(), response.imagen(), response.disponible(), response.categoria());
 
         when(productoRepository.findByIdOrThrow(1L)).thenReturn(producto);
         when(productoRepository.save(any(Producto.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -123,8 +127,7 @@ class ProductoServiceTest {
         Categoria nuevaCategoria = createCategoria(2L, "Hogar", "Productos para el hogar");
         Producto producto = createProducto(1L, categoriaActual);
 
-        ProductoEditRequestDTO request = new ProductoEditRequestDTO();
-        request.setIdCategoria(2L);
+        ProductoEditRequestDTO request = new ProductoEditRequestDTO(null, null, null, null, null, null, 2L);
 
         ProductoResponseDTO response = createResponse(producto, nuevaCategoria);
 
@@ -147,8 +150,7 @@ class ProductoServiceTest {
     void updateShouldThrowWhenCategoryDoesNotExist() {
         Producto producto = createProducto(1L, createCategoria(1L, "Electronica", "Productos electronicos"));
 
-        ProductoEditRequestDTO request = new ProductoEditRequestDTO();
-        request.setIdCategoria(999L);
+        ProductoEditRequestDTO request = new ProductoEditRequestDTO(null, null, null, null, null, null, 999L);
 
         when(productoRepository.findByIdOrThrow(1L)).thenReturn(producto);
         when(categoriaRepository.findByIdAndEliminadoFalse(999L)).thenReturn(java.util.Optional.empty());
@@ -165,25 +167,23 @@ class ProductoServiceTest {
     void updateShouldThrowWhenProductNameAlreadyExists() {
         Producto producto = createProducto(1L, createCategoria(1L, "Electronica", "Productos electronicos"));
 
-        ProductoEditRequestDTO request = new ProductoEditRequestDTO();
-        request.setNombre("Laptop Gaming Pro");
+        ProductoEditRequestDTO request = new ProductoEditRequestDTO("Laptop Gaming Pro", null, null, null, null, null, null);
 
         when(productoRepository.findByIdOrThrow(1L)).thenReturn(producto);
-        when(productoRepository.existsByNombreAndIdNot(request.getNombre(), 1L)).thenReturn(true);
+        when(productoRepository.existsByNombreAndIdNot(request.nombre(), 1L)).thenReturn(true);
 
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> productoService.update(1L, request));
 
         assertEquals("Ya existe un producto con ese nombre", exception.getMessage());
         verify(productoRepository).findByIdOrThrow(1L);
-        verify(productoRepository).existsByNombreAndIdNot(request.getNombre(), 1L);
+        verify(productoRepository).existsByNombreAndIdNot(request.nombre(), 1L);
         verify(categoriaRepository, never()).findByIdAndEliminadoFalse(anyLong());
         verify(productoRepository, never()).save(any());
     }
 
     @Test
     void updateShouldThrowWhenProductDoesNotExist() {
-        ProductoEditRequestDTO request = new ProductoEditRequestDTO();
-        request.setNombre("Laptop Gaming Pro");
+        ProductoEditRequestDTO request = new ProductoEditRequestDTO("Laptop Gaming Pro", null, null, null, null, null, null);
 
         when(productoRepository.findByIdOrThrow(1L)).thenThrow(new ResourceNotFoundException());
 
@@ -201,7 +201,7 @@ class ProductoServiceTest {
         Categoria categoria = createCategoria(1L, "Electronica", "Productos electronicos");
         Producto producto = createProducto(1L, categoria);
 
-        ProductoEditRequestDTO request = new ProductoEditRequestDTO();
+        ProductoEditRequestDTO request = new ProductoEditRequestDTO(null, null, null, null, null, null, null);
 
         ProductoResponseDTO response = createResponse(producto, categoria);
 
@@ -247,20 +247,16 @@ class ProductoServiceTest {
     }
 
     private ProductoResponseDTO createResponse(Producto producto, Categoria categoria) {
-        CategoriaResponseDTO categoriaDTO = new CategoriaResponseDTO();
-        categoriaDTO.setId(categoria.getId());
-        categoriaDTO.setNombre(categoria.getNombre());
-        categoriaDTO.setDescripcion(categoria.getDescripcion());
-
-        ProductoResponseDTO response = new ProductoResponseDTO();
-        response.setId(producto.getId());
-        response.setNombre(producto.getNombre());
-        response.setPrecio(producto.getPrecio());
-        response.setDescripcion(producto.getDescripcion());
-        response.setStock(producto.getStock());
-        response.setImagen(producto.getImagen());
-        response.setDisponible(producto.isDisponible());
-        response.setCategoria(categoriaDTO);
-        return response;
+        CategoriaResponseDTO categoriaDTO = new CategoriaResponseDTO(categoria.getId(), categoria.getNombre(), categoria.getDescripcion());
+        return new ProductoResponseDTO(
+                producto.getId(),
+                producto.getNombre(),
+                producto.getPrecio(),
+                producto.getDescripcion(),
+                producto.getStock(),
+                producto.getImagen(),
+                producto.isDisponible(),
+                categoriaDTO
+        );
     }
 }
