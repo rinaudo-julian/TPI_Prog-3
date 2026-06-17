@@ -54,6 +54,24 @@ public class PedidoController {
                 return ResponseEntity.ok(pedidoService.findById(id));
         }
 
+        @GetMapping("/usuario/{id}")
+        @Operation(summary = "Listar pedidos por usuario", description = "Devuelve el historial de pedidos del usuario especificado.")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Pedidos del usuario listados correctamente"),
+                        @ApiResponse(responseCode = "404", description = "Usuario no encontrado", content = @Content(mediaType = "application/json", examples = {
+                                        @ExampleObject(name = "Usuario inexistente", value = """
+                                                        {
+                                                          "status": 404,
+                                                          "message": "Recurso no encontrado",
+                                                          "timestamp": "2026-06-14T21:00:42.290Z"
+                                                        }
+                                                        """)
+                        }))
+        })
+        public ResponseEntity<List<PedidoResponseDTO>> findByUsuarioId(@PathVariable Long id) {
+                return ResponseEntity.ok(pedidoService.findByUsuarioId(id));
+        }
+
         @PostMapping
         @Operation(summary = "Crear pedido", description = "Crea un pedido validando stock, disponibilidad y calculando totales automáticamente.")
         @ApiResponses(value = {

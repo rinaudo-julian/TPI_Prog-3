@@ -76,16 +76,27 @@ public class PedidoService {
         return pedidoMapper.toDto(pedido);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<PedidoResponseDTO> findAll() {
         return pedidoRepository.findAll().stream()
                 .map(pedidoMapper::toDto)
                 .toList();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public PedidoResponseDTO findById(Long id) {
         Pedido pedido = pedidoRepository.findByIdOrThrow(id);
         return pedidoMapper.toDto(pedido);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PedidoResponseDTO> findByUsuarioId(Long usuarioId) {
+        usuarioRepository.findByIdAndEliminadoFalse(usuarioId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Entidad con id " + usuarioId + " no encontrado"));
+
+        return pedidoRepository.findAllByUsuarioIdAndEliminadoFalse(usuarioId).stream()
+                .map(pedidoMapper::toDto)
+                .toList();
     }
 }

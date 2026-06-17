@@ -252,6 +252,46 @@ class PedidoControllerIntegrationTest {
         .andExpect(jsonPath("$.message").value("Recurso no encontrado"));
   }
 
+  @Test
+  @Transactional
+  void findByUsuarioIdShouldReturnPedidosForThatUserWithStructure() throws Exception {
+    SeedData seed = seedPedidoData();
+
+    createPedido(seed.usuario.getId(), seed.producto1.getId(), 2);
+
+    mockMvc.perform(get("/pedidos/usuario/{id}", seed.usuario.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(1)))
+        .andExpect(jsonPath("$[0].id").exists())
+        .andExpect(jsonPath("$[0].fecha").exists())
+        .andExpect(jsonPath("$[0].estado").exists())
+        .andExpect(jsonPath("$[0].total").exists())
+        .andExpect(jsonPath("$[0].formaPago").exists())
+        .andExpect(jsonPath("$[0].idUsuario").exists())
+        .andExpect(jsonPath("$[0].detalles").exists())
+        .andExpect(jsonPath("$[0].detalles[0].id").exists())
+        .andExpect(jsonPath("$[0].detalles[0].cantidad").exists())
+        .andExpect(jsonPath("$[0].detalles[0].subtotal").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.id").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.nombre").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.precio").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.descripcion").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.stock").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.imagen").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.disponible").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.categoria.id").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.categoria.nombre").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.categoria.descripcion").exists());
+  }
+
+  @Test
+  void findByUsuarioIdShouldReturn404WhenUserDoesNotExist() throws Exception {
+    mockMvc.perform(get("/pedidos/usuario/{id}", 999L))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.status").value(404))
+        .andExpect(jsonPath("$.message").value("Entidad con id 999 no encontrado"));
+  }
+
   private void createPedido(Long usuarioId, Long productoId, int cantidad) throws Exception {
     mockMvc.perform(post("/pedidos")
         .contentType(MediaType.APPLICATION_JSON)
