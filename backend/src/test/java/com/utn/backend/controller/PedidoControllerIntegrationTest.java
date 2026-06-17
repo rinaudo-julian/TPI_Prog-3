@@ -116,10 +116,27 @@ class PedidoControllerIntegrationTest {
         .andExpect(jsonPath("$.formaPago").value(FormaPago.TARJETA.name()))
         .andExpect(jsonPath("$.idUsuario").value(usuario.getId()))
         .andExpect(jsonPath("$.detalles", hasSize(2)))
+        .andExpect(jsonPath("$.detalles[*].cantidad", hasItem(2)))
+        .andExpect(jsonPath("$.detalles[*].cantidad", hasItem(3)))
         .andExpect(jsonPath("$.detalles[*].subtotal", hasItem(200.0)))
         .andExpect(jsonPath("$.detalles[*].subtotal", hasItem(150.0)))
+        .andExpect(jsonPath("$.detalles[*].producto.id", hasItem(producto1.getId().intValue())))
         .andExpect(jsonPath("$.detalles[*].producto.nombre", hasItem("Producto 1")))
-        .andExpect(jsonPath("$.detalles[*].producto.nombre", hasItem("Producto 2")));
+        .andExpect(jsonPath("$.detalles[*].producto.precio", hasItem(100.0)))
+        .andExpect(jsonPath("$.detalles[*].producto.stock", hasItem(8)))
+        .andExpect(jsonPath("$.detalles[*].producto.descripcion", hasItem("Descripcion 1")))
+        .andExpect(jsonPath("$.detalles[*].producto.imagen", hasItem("producto-1.jpg")))
+        .andExpect(jsonPath("$.detalles[*].producto.disponible", hasItem(true)))
+        .andExpect(jsonPath("$.detalles[*].producto.categoria.id", hasItem(categoria.getId().intValue())))
+        .andExpect(jsonPath("$.detalles[*].producto.categoria.nombre", hasItem("Electronica")))
+        .andExpect(jsonPath("$.detalles[*].producto.categoria.descripcion", hasItem("Productos electronicos")))
+        .andExpect(jsonPath("$.detalles[*].producto.id", hasItem(producto2.getId().intValue())))
+        .andExpect(jsonPath("$.detalles[*].producto.nombre", hasItem("Producto 2")))
+        .andExpect(jsonPath("$.detalles[*].producto.precio", hasItem(50.0)))
+        .andExpect(jsonPath("$.detalles[*].producto.stock", hasItem(17)))
+        .andExpect(jsonPath("$.detalles[*].producto.descripcion", hasItem("Descripcion 2")))
+        .andExpect(jsonPath("$.detalles[*].producto.imagen", hasItem("producto-2.jpg")))
+        .andExpect(jsonPath("$.detalles[*].producto.disponible", hasItem(true)));
 
     List<Pedido> pedidos = pedidoRepository.findAll();
     assertEquals(1, pedidos.size());
