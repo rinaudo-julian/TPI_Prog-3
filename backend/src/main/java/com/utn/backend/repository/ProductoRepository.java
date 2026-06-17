@@ -12,4 +12,5 @@ public interface ProductoRepository extends BaseRepository<Producto> {
     boolean existsByNombreAndIdNot(String nombre, Long id);
 
     List<Producto> findAllByCategoriaIdAndEliminadoFalse(Long categoriaId);
+
 }
