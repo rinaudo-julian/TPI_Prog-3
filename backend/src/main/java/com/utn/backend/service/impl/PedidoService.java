@@ -99,4 +99,8 @@ public class PedidoService {
                 .map(pedidoMapper::toDto)
                 .toList();
     }
+
+    public void deleteById(Long id) {
+        pedidoRepository.deleteById(id);
+    }
 }

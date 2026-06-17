@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -290,6 +291,39 @@ class PedidoControllerIntegrationTest {
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.status").value(404))
         .andExpect(jsonPath("$.message").value("Entidad con id 999 no encontrado"));
+  }
+
+  @Test
+  @Transactional
+  void deleteShouldSoftDeletePedidoWithoutRemovingDetailsOrRestoringStock() throws Exception {
+    SeedData seed = seedPedidoData();
+
+    createPedido(seed.usuario.getId(), seed.producto1.getId(), 2);
+
+    Pedido pedido = pedidoRepository.findAll().get(0);
+
+    mockMvc.perform(delete("/pedidos/{id}", pedido.getId()))
+        .andExpect(status().isNoContent());
+
+    Pedido deletedPedido = pedidoRepository.findById(pedido.getId()).orElseThrow();
+    assertTrue(deletedPedido.isEliminado());
+    assertEquals(1, deletedPedido.getDetallePedidos().size());
+
+    Producto savedProducto = productoRepository.findById(seed.producto1.getId()).orElseThrow();
+    assertEquals(8, savedProducto.getStock());
+    assertFalse(savedProducto.isEliminado());
+
+    mockMvc.perform(get("/pedidos"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(0)));
+  }
+
+  @Test
+  void deleteShouldReturn404WhenPedidoDoesNotExist() throws Exception {
+    mockMvc.perform(delete("/pedidos/{id}", 999L))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.status").value(404))
+        .andExpect(jsonPath("$.message").value("Recurso no encontrado"));
   }
 
   private void createPedido(Long usuarioId, Long productoId, int cantidad) throws Exception {

@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +26,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/pedidos")
 @RequiredArgsConstructor
-@Tag(name = "Pedidos", description = "Operaciones para crear y listar pedidos")
+@Tag(name = "Pedidos", description = "Operaciones para crear, listar y eliminar pedidos")
 public class PedidoController {
         private final PedidoService pedidoService;
 
@@ -104,5 +105,33 @@ public class PedidoController {
         })
         public ResponseEntity<PedidoResponseDTO> create(@Valid @RequestBody PedidoCreateRequestDTO requestDTO) {
                 return ResponseEntity.status(HttpStatus.CREATED).body(pedidoService.save(requestDTO));
+        }
+
+        @DeleteMapping("/{id}")
+        @Operation(summary = "Eliminar pedido", description = "Realiza una eliminacion logica de un pedido existente.")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "204", description = "Pedido eliminado correctamente"),
+                        @ApiResponse(responseCode = "404", description = "Pedido no encontrado", content = @Content(mediaType = "application/json", examples = {
+                                        @ExampleObject(name = "Pedido inexistente", value = """
+                                                        {
+                                                          "status": 404,
+                                                          "message": "Recurso no encontrado",
+                                                          "timestamp": "2026-06-14T21:00:42.290Z"
+                                                        }
+                                                        """)
+                        })),
+                        @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content(mediaType = "application/json", examples = {
+                                        @ExampleObject(name = "Error interno", value = """
+                                                        {
+                                                          "status": 500,
+                                                          "message": "Error interno del servidor",
+                                                          "timestamp": "2026-06-14T21:00:42.290Z"
+                                                        }
+                                                        """)
+                        }))
+        })
+        public ResponseEntity<Void> delete(@PathVariable Long id) {
+                pedidoService.deleteById(id);
+                return ResponseEntity.noContent().build();
         }
 }
