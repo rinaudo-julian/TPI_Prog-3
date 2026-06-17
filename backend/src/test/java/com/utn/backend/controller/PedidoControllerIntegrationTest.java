@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -157,5 +158,113 @@ class PedidoControllerIntegrationTest {
     assertTrue(savedProducto2.isDisponible());
     assertFalse(savedProducto1.isEliminado());
     assertFalse(savedProducto2.isEliminado());
+  }
+
+  @Test
+  @Transactional
+  void findAllShouldReturnActivePedidosAndExcludeDeletedOnes() throws Exception {
+    SeedData seed = seedPedidoData();
+
+    createPedido(seed.usuario.getId(), seed.producto1.getId(), 2);
+    createPedido(seed.usuario.getId(), seed.producto2.getId(), 3);
+    createPedido(seed.usuario.getId(), seed.producto1.getId(), 1);
+
+    Pedido pedidoEliminado = pedidoRepository.findAll().stream()
+        .filter(pedido -> pedido.getTotal().equals(100.0))
+        .findFirst()
+        .orElseThrow();
+    pedidoRepository.deleteById(pedidoEliminado.getId());
+
+    mockMvc.perform(get("/pedidos"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(2)))
+        .andExpect(jsonPath("$[0].id").exists())
+        .andExpect(jsonPath("$[0].fecha").exists())
+        .andExpect(jsonPath("$[0].estado").exists())
+        .andExpect(jsonPath("$[0].total").exists())
+        .andExpect(jsonPath("$[0].formaPago").exists())
+        .andExpect(jsonPath("$[0].idUsuario").exists())
+        .andExpect(jsonPath("$[0].detalles", hasSize(1)))
+        .andExpect(jsonPath("$[0].detalles[0].id").exists())
+        .andExpect(jsonPath("$[0].detalles[0].cantidad").exists())
+        .andExpect(jsonPath("$[0].detalles[0].subtotal").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.id").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.nombre").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.precio").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.descripcion").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.stock").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.imagen").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.disponible").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.categoria.id").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.categoria.nombre").exists())
+        .andExpect(jsonPath("$[0].detalles[0].producto.categoria.descripcion").exists());
+
+    List<Pedido> pedidos = pedidoRepository.findAll();
+    assertEquals(2, pedidos.size());
+    assertTrue(pedidos.stream().noneMatch(pedido -> pedido.getTotal().equals(100.0)));
+  }
+
+  @Test
+  void findAllShouldReturnEmptyArrayWhenNoPedidosExist() throws Exception {
+    mockMvc.perform(get("/pedidos"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(0)));
+  }
+
+  private void createPedido(Long usuarioId, Long productoId, int cantidad) throws Exception {
+    mockMvc.perform(post("/pedidos")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("""
+            {
+              "estado": "PENDIENTE",
+              "formaPago": "TARJETA",
+              "idUsuario": %d,
+              "detallePedido": [
+                {"idProducto": %d, "cantidad": %d}
+              ]
+            }
+            """.formatted(usuarioId, productoId, cantidad)))
+        .andExpect(status().isCreated());
+  }
+
+  private SeedData seedPedidoData() {
+    Categoria categoria = new Categoria();
+    categoria.setNombre("Electronica");
+    categoria.setDescripcion("Productos electronicos");
+    categoria = categoriaRepository.save(categoria);
+
+    Usuario usuario = new Usuario();
+    usuario.setNombre("Juan");
+    usuario.setApellido("Perez");
+    usuario.setEmail("juan.perez@mail.com");
+    usuario.setCelular("+5491122334455");
+    usuario.setContrasena("hashed-user");
+    usuario.setRol(Rol.USUARIO);
+    usuario = usuarioRepository.save(usuario);
+
+    Producto producto1 = new Producto();
+    producto1.setNombre("Producto 1");
+    producto1.setDescripcion("Descripcion 1");
+    producto1.setPrecio(100.0);
+    producto1.setStock(10);
+    producto1.setImagen("producto-1.jpg");
+    producto1.setDisponible(true);
+    producto1.setCategoria(categoria);
+    producto1 = productoRepository.save(producto1);
+
+    Producto producto2 = new Producto();
+    producto2.setNombre("Producto 2");
+    producto2.setDescripcion("Descripcion 2");
+    producto2.setPrecio(50.0);
+    producto2.setStock(20);
+    producto2.setImagen("producto-2.jpg");
+    producto2.setDisponible(true);
+    producto2.setCategoria(categoria);
+    producto2 = productoRepository.save(producto2);
+
+    return new SeedData(usuario, producto1, producto2);
+  }
+
+  private record SeedData(Usuario usuario, Producto producto1, Producto producto2) {
   }
 }

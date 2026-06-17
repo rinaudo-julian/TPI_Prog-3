@@ -75,4 +75,11 @@ public class PedidoService {
 
         return pedidoMapper.toDto(pedido);
     }
+
+    @Transactional
+    public List<PedidoResponseDTO> findAll() {
+        return pedidoRepository.findAll().stream()
+                .map(pedidoMapper::toDto)
+                .toList();
+    }
 }
