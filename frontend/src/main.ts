@@ -1,3 +1,3 @@
 import "./style.css";
 
-console.log("main.ts");
+window.location.replace("src/pages/auth/login/login.html");

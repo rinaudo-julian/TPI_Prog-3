@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="/src/style.css" rel="stylesheet" />
+    <title>Food-Store</title>
+  </head>
+  <body class="min-h-screen bg-primary font-sans text-[#1f1f1f]">
+    <main class="flex min-h-screen items-center justify-center px-4 py-10">
+      <section
+        class="w-full max-w-85 rounded-xl bg-white px-8 py-10 shadow-[0_10px_28px_rgba(0,0,0,0.12)]"
+      >
+        <header class="text-center">
+          <h1 class="text-[32px] font-extrabold leading-none text-primary-soft">
+            SuperFood
+          </h1>
+          <p class="mt-3 text-[17px] font-bold text-[#2b2b2b]">
+            Iniciar Sesión
+          </p>
+        </header>
+
+        <form class="mt-8 space-y-5">
+          <div>
+            <label
+              for="email"
+              class="mb-2 block text-[13px] font-semibold text-strong"
+              >Email</label
+            >
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="ejemplo@correo.com"
+              autocomplete="email"
+              required
+              class="h-10 w-full rounded-sm border border-border px-3 text-[13px] outline-none transition focus:border-primary-soft focus:ring-2 focus:ring-primary-soft/20"
+            />
+          </div>
+
+          <div>
+            <label
+              for="password"
+              class="mb-2 block text-[13px] font-semibold text-strong"
+              >Contraseña</label
+            >
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Ingresa tu contraseña"
+              autocomplete="current-password"
+              minlength="6"
+              required
+              class="h-10 w-full rounded-sm border border-border px-3 text-[13px] outline-none transition focus:border-primary-soft focus:ring-2 focus:ring-primary-soft/20"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="cursor-pointer inline-flex h-10 items-center justify-center rounded-md bg-primary px-5 text-[14px] font-semibold text-white shadow-sm transition hover:bg-primary-hover"
+          >
+            Ingresar
+          </button>
+        </form>
+
+        <footer>
+          <p class="mt-6 text-center text-[13px] text-[#444]">
+            ¿No tenes cuenta?
+            <a
+              href="../register/register.html"
+              class="font-semibold text-[#4f83ff] hover:underline"
+              >Regístrate</a
+            >
+          </p>
+
+          <div class="mt-7 text-[11px] leading-5 text-[#9a9a9a]">
+            <p class="font-semibold text-[#bdbdbd]">Cuentas de prueba</p>
+            <p>Admin: admin@food.com | admin123</p>
+            <p>Cliente: cliente@food.com | cliente123</p>
+          </div>
+        </footer>
+      </section>
+    </main>
+  </body>
+</html>
