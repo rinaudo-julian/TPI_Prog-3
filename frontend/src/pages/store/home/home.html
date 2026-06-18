@@ -79,21 +79,22 @@
           <section
             class="rounded-lg border border-border bg-white px-6 py-4 shadow-[0_4px_14px_rgba(0,0,0,0.05)]"
           >
-            <div class="grid grid-cols-[minmax(0,1fr)_180px_140px] gap-3">
+            <div class="grid grid-cols-2 gap-3">
               <input
                 type="text"
+                id="product-search"
                 placeholder="Buscar productos..."
                 class="h-10 rounded-md border border-border px-4 text-[13px] text-text-strong outline-none placeholder:text-[#9b9b9b]"
               />
               <select
+                id="product-sort"
                 class="h-10 rounded-md border border-border px-3 text-[13px] text-[#6b6b6b] outline-none"
               >
-                <option>Ordenar por</option>
-              </select>
-              <select
-                class="h-10 rounded-md border border-border px-3 text-[13px] text-[#6b6b6b] outline-none"
-              >
-                <option>Todos</option>
+                <option value="default">Ordenar por</option>
+                <option value="price-asc">Precio: menor a mayor</option>
+                <option value="price-desc">Precio: mayor a menor</option>
+                <option value="name-asc">Nombre: A-Z</option>
+                <option value="name-desc">Nombre: Z-A</option>
               </select>
             </div>
           </section>
@@ -102,155 +103,15 @@
             <h1 class="text-[26px] font-bold text-text-strong">
               Todos los Productos
             </h1>
-            <span class="text-[12px] text-[#8b8b8b]">1 producto</span>
+            <span id="products-count" class="text-[12px] text-[#8b8b8b]"></span>
           </div>
 
-          <section class="flex gap-7 flex-wrap mt-6">
-            <a
-              href="../productDetail/productDetail.html?id=1"
-              class="block w-70 rounded-lg bg-white shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgba(0,0,0,0.12)]"
-            >
-              <article>
-                <div>
-                  <img
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCjUDxXKtszoBJFQbvj8UL2CbVwJVxyM_3iJUHisxHHxpTzGMvolq9XlqSBiI9_SyA38058uL0M-X0ZnRMjjNdUZDXWZ8DnIf0__PTAZc&s=10"
-                    alt="burger"
-                  />
-                </div>
+          <p id="products-status" class="mt-4 text-[13px] text-[#8b8b8b]"></p>
 
-                <div class="border-t border-[#ececec] p-4">
-                  <p class="text-[10px] font-semibold text-[#8d8d8d]">
-                    Hamburguesas
-                  </p>
-                  <h2 class="mt-2 text-[13px] font-bold text-text-strong">
-                    Hamburguesa triple
-                  </h2>
-                  <p class="mt-1 text-[10px] text-[#a3a3a3]">
-                    Hamburguesa triple smash
-                  </p>
-
-                  <div class="mt-4 flex items-center justify-between">
-                    <span class="text-[16px] font-bold text-primary-soft"
-                      >25000.00</span
-                    >
-                    <span
-                      class="rounded-full bg-success px-4 py-1.5 text-[11px] font-semibold text-white"
-                    >
-                      Comprar
-                    </span>
-                  </div>
-                </div>
-              </article>
-            </a>
-            <a
-              href="../productDetail/productDetail.html?id=2"
-              class="block w-70 overflow-hidden rounded-lg bg-white shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgba(0,0,0,0.12)]"
-            >
-              <article>
-                <div>
-                  <img
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCjUDxXKtszoBJFQbvj8UL2CbVwJVxyM_3iJUHisxHHxpTzGMvolq9XlqSBiI9_SyA38058uL0M-X0ZnRMjjNdUZDXWZ8DnIf0__PTAZc&s=10"
-                    alt="burger"
-                  />
-                </div>
-
-                <div class="border-t border-[#ececec] p-4">
-                  <p class="text-[10px] font-semibold text-[#8d8d8d]">
-                    Hamburguesas
-                  </p>
-                  <h2 class="mt-2 text-[13px] font-bold text-text-strong">
-                    Hamburguesa triple
-                  </h2>
-                  <p class="mt-1 text-[10px] text-[#a3a3a3]">
-                    Hamburguesa triple smash
-                  </p>
-
-                  <div class="mt-4 flex items-center justify-between">
-                    <span class="text-[16px] font-bold text-primary-soft"
-                      >25000.00</span
-                    >
-                    <span
-                      class="rounded-full bg-success px-4 py-1.5 text-[11px] font-semibold text-white"
-                    >
-                      Comprar
-                    </span>
-                  </div>
-                </div>
-              </article>
-            </a>
-            <a
-              href="../productDetail/productDetail.html?id=3"
-              class="block w-70 overflow-hidden rounded-lg bg-white shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgba(0,0,0,0.12)]"
-            >
-              <article>
-                <div>
-                  <img
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCjUDxXKtszoBJFQbvj8UL2CbVwJVxyM_3iJUHisxHHxpTzGMvolq9XlqSBiI9_SyA38058uL0M-X0ZnRMjjNdUZDXWZ8DnIf0__PTAZc&s=10"
-                    alt="burger"
-                  />
-                </div>
-
-                <div class="border-t border-[#ececec] p-4">
-                  <p class="text-[10px] font-semibold text-[#8d8d8d]">
-                    Hamburguesas
-                  </p>
-                  <h2 class="mt-2 text-[13px] font-bold text-text-strong">
-                    Hamburguesa triple
-                  </h2>
-                  <p class="mt-1 text-[10px] text-[#a3a3a3]">
-                    Hamburguesa triple smash
-                  </p>
-
-                  <div class="mt-4 flex items-center justify-between">
-                    <span class="text-[16px] font-bold text-primary-soft"
-                      >25000.00</span
-                    >
-                    <span
-                      class="rounded-full bg-success px-4 py-1.5 text-[11px] font-semibold text-white"
-                    >
-                      Comprar
-                    </span>
-                  </div>
-                </div>
-              </article>
-            </a>
-            <a
-              href="../productDetail/productDetail.html?id=4"
-              class="block w-70 overflow-hidden rounded-lg bg-white shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgba(0,0,0,0.12)]"
-            >
-              <article>
-                <div>
-                  <img
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCjUDxXKtszoBJFQbvj8UL2CbVwJVxyM_3iJUHisxHHxpTzGMvolq9XlqSBiI9_SyA38058uL0M-X0ZnRMjjNdUZDXWZ8DnIf0__PTAZc&s=10"
-                    alt="burger"
-                  />
-                </div>
-
-                <div class="border-t border-[#ececec] p-4">
-                  <p class="text-[10px] font-semibold text-[#8d8d8d]">
-                    Hamburguesas
-                  </p>
-                  <h2 class="mt-2 text-[13px] font-bold text-text-strong">
-                    Hamburguesa triple
-                  </h2>
-                  <p class="mt-1 text-[10px] text-[#a3a3a3]">
-                    Hamburguesa triple smash
-                  </p>
-
-                  <div class="mt-4 flex items-center justify-between">
-                    <span class="text-[16px] font-bold text-primary-soft"
-                      >25000.00</span
-                    >
-                    <span
-                      class="rounded-full bg-success px-4 py-1.5 text-[11px] font-semibold text-white"
-                    >
-                      Comprar
-                    </span>
-                  </div>
-                </div>
-              </article>
-            </a>
-          </section>
+          <section
+            id="products-grid"
+            class="mt-6 grid gap-7 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+          ></section>
         </main>
       </div>
     </div>
