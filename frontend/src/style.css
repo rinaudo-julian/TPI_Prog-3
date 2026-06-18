@@ -2,13 +2,13 @@
 
 @theme {
   --color-primary: #ff6a1a;
-  /* --color-background: #FFFFFF; */
+  --color-background: #f5f7fb;
   --color-primary-soft: #ff7a53;
   --color-primary-hover: #f65f10;
   --color-text-strong: #2f2f2f;
   --color-border: #d9d9d9;
-  /* --color-success: #10B981;
+  --color-success: #2fcdb0;
   --color-warning: #F59E0B;
   --color-danger: #EF4444;
-  --color-info: #3B82F6; */
+  --color-info: #3B82F6;
 }

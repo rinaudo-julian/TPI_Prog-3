@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="/src/style.css" rel="stylesheet" />
+    <title>Food Store</title>
+  </head>
+  <body class="min-h-screen bg-background font-sans text-text-strong">
+    <div class="flex min-h-screen flex-col">
+      <header class="border-b border-border bg-white px-8 py-4">
+        <div
+          class="flex items-center justify-end gap-8 text-[14px] text-[#666]"
+        >
+          <div class="mr-auto flex items-center gap-2 text-primary">
+            <span class="text-[18px]">🍕</span>
+            <span class="font-semibold">Food Store</span>
+          </div>
+          <a href="#" class="hover:text-primary">Inicio</a>
+          <a href="#" class="hover:text-primary">Mis Pedidos</a>
+          <a href="#" class="hover:text-primary">Administracion</a>
+          <a href="#" class="flex items-center gap-1 hover:text-primary">
+            <span>🛒</span>
+            <span>Carrito</span>
+            <span
+              class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-bold text-white"
+              >2</span
+            >
+          </a>
+          <span class="text-text-strong">Juan Perez</span>
+          <button
+            class="rounded-md border border-border bg-[#f2f4f8] px-4 py-2 text-[13px] font-semibold text-[#5d5d5d]"
+          >
+            Cerrar Sesión
+          </button>
+        </div>
+      </header>
+
+      <div class="flex min-h-0 flex-1">
+        <aside
+          class="flex w-57.5 shrink-0 flex-col border-r border-border bg-white"
+        >
+          <div class="px-5 py-6">
+            <p class="text-[13px] font-semibold text-primary-soft">
+              Categorias
+            </p>
+            <p class="mt-1 text-[11px] text-[#a3a3a3]">Filtra por categoria</p>
+
+            <nav class="mt-6 space-y-2 text-[14px]">
+              <a
+                href="#"
+                class="flex items-center gap-3 rounded-r-md border-l-2 border-primary bg-[#fff3ec] px-4 py-3 font-semibold text-primary"
+              >
+                <span>🍔</span>
+                <span>Todos los productos</span>
+              </a>
+              <a
+                href="#"
+                class="flex items-center gap-3 px-4 py-3 text-[#7b7b7b]"
+              >
+                <span>🍟</span>
+                <span>Hamburguesas</span>
+              </a>
+            </nav>
+          </div>
+        </aside>
+
+        <main class="min-w-0 flex-1 px-8 py-6">
+          <section
+            class="rounded-lg border border-border bg-white px-6 py-4 shadow-[0_4px_14px_rgba(0,0,0,0.05)]"
+          >
+            <div class="grid grid-cols-[minmax(0,1fr)_180px_140px] gap-3">
+              <input
+                type="text"
+                placeholder="Buscar productos..."
+                class="h-10 rounded-md border border-border px-4 text-[13px] text-text-strong outline-none placeholder:text-[#9b9b9b]"
+              />
+              <select
+                class="h-10 rounded-md border border-border px-3 text-[13px] text-[#6b6b6b] outline-none"
+              >
+                <option>Ordenar por</option>
+              </select>
+              <select
+                class="h-10 rounded-md border border-border px-3 text-[13px] text-[#6b6b6b] outline-none"
+              >
+                <option>Todos</option>
+              </select>
+            </div>
+          </section>
+
+          <div class="mt-8 flex items-end justify-between">
+            <h1 class="text-[26px] font-bold text-[#353535]">
+              Todos los Productos
+            </h1>
+            <span class="text-[12px] text-[#8b8b8b]">1 producto</span>
+          </div>
+
+          <section class="flex gap-7 flex-wrap mt-6">
+            <article
+              class="w-70 rounded-lg bg-white shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
+            >
+              <div>
+                <img
+                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCjUDxXKtszoBJFQbvj8UL2CbVwJVxyM_3iJUHisxHHxpTzGMvolq9XlqSBiI9_SyA38058uL0M-X0ZnRMjjNdUZDXWZ8DnIf0__PTAZc&s=10"
+                  alt="burger"
+                />
+              </div>
+
+              <div class="border-t border-[#ececec] p-4">
+                <p class="text-[10px] font-semibold text-[#8d8d8d]">
+                  Hamburguesas
+                </p>
+                <h2 class="mt-2 text-[13px] font-bold text-text-strong">
+                  Hamburguesa triple
+                </h2>
+                <p class="mt-1 text-[10px] text-[#a3a3a3]">
+                  Hamburguesa triple smash
+                </p>
+
+                <div class="mt-4 flex items-center justify-between">
+                  <span class="text-[16px] font-bold text-primary-soft"
+                    >25000.00</span
+                  >
+                  <button
+                    class="rounded-full bg-success px-4 py-1.5 text-[11px] font-semibold text-white"
+                  >
+                    Comprar
+                  </button>
+                </div>
+              </div>
+            </article>
+            <article
+              class="w-70 overflow-hidden rounded-lg bg-white shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
+            >
+              <div>
+                <img
+                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCjUDxXKtszoBJFQbvj8UL2CbVwJVxyM_3iJUHisxHHxpTzGMvolq9XlqSBiI9_SyA38058uL0M-X0ZnRMjjNdUZDXWZ8DnIf0__PTAZc&s=10"
+                  alt="burger"
+                />
+              </div>
+
+              <div class="border-t border-[#ececec] p-4">
+                <p class="text-[10px] font-semibold text-[#8d8d8d]">
+                  Hamburguesas
+                </p>
+                <h2 class="mt-2 text-[13px] font-bold text-text-strong">
+                  Hamburguesa triple
+                </h2>
+                <p class="mt-1 text-[10px] text-[#a3a3a3]">
+                  Hamburguesa triple smash
+                </p>
+
+                <div class="mt-4 flex items-center justify-between">
+                  <span class="text-[16px] font-bold text-primary-soft"
+                    >25000.00</span
+                  >
+                  <button
+                    class="rounded-full bg-success px-4 py-1.5 text-[11px] font-semibold text-white"
+                  >
+                    Comprar
+                  </button>
+                </div>
+              </div>
+            </article>
+            <article
+              class="w-70 overflow-hidden rounded-lg bg-white shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
+            >
+              <div>
+                <img
+                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCjUDxXKtszoBJFQbvj8UL2CbVwJVxyM_3iJUHisxHHxpTzGMvolq9XlqSBiI9_SyA38058uL0M-X0ZnRMjjNdUZDXWZ8DnIf0__PTAZc&s=10"
+                  alt="burger"
+                />
+              </div>
+
+              <div class="border-t border-[#ececec] p-4">
+                <p class="text-[10px] font-semibold text-[#8d8d8d]">
+                  Hamburguesas
+                </p>
+                <h2 class="mt-2 text-[13px] font-bold text-text-strong">
+                  Hamburguesa triple
+                </h2>
+                <p class="mt-1 text-[10px] text-[#a3a3a3]">
+                  Hamburguesa triple smash
+                </p>
+
+                <div class="mt-4 flex items-center justify-between">
+                  <span class="text-[16px] font-bold text-primary-soft"
+                    >25000.00</span
+                  >
+                  <button
+                    class="rounded-full bg-success px-4 py-1.5 text-[11px] font-semibold text-white"
+                  >
+                    Comprar
+                  </button>
+                </div>
+              </div>
+            </article>
+            <article
+              class="w-70 overflow-hidden rounded-lg bg-white shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
+            >
+              <div>
+                <img
+                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCjUDxXKtszoBJFQbvj8UL2CbVwJVxyM_3iJUHisxHHxpTzGMvolq9XlqSBiI9_SyA38058uL0M-X0ZnRMjjNdUZDXWZ8DnIf0__PTAZc&s=10"
+                  alt="burger"
+                />
+              </div>
+
+              <div class="border-t border-[#ececec] p-4">
+                <p class="text-[10px] font-semibold text-[#8d8d8d]">
+                  Hamburguesas
+                </p>
+                <h2 class="mt-2 text-[13px] font-bold text-text-strong">
+                  Hamburguesa triple
+                </h2>
+                <p class="mt-1 text-[10px] text-[#a3a3a3]">
+                  Hamburguesa triple smash
+                </p>
+
+                <div class="mt-4 flex items-center justify-between">
+                  <span class="text-[16px] font-bold text-primary-soft"
+                    >25000.00</span
+                  >
+                  <button
+                    class="rounded-full bg-success px-4 py-1.5 text-[11px] font-semibold text-white"
+                  >
+                    Comprar
+                  </button>
+                </div>
+              </div>
+            </article>
+          </section>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>
