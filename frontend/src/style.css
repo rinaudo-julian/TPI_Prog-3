@@ -10,6 +10,7 @@
   --color-gray-soft: #eaeaea;
   --color-success: #2fcdb0;
   --color-warning: #F59E0B;
-  --color-danger: #EF4444;
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
   --color-info: #3B82F6;
 }
