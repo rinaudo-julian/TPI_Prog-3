@@ -1,5 +1,7 @@
 import type { ErrorResponse } from "../../../types/error";
+import { Rol } from "../../../types/rol";
 import type { User } from "../../../types/user";
+import { replace } from "../../../utils/routes";
 
 const API_BASE_URL = "http://localhost:8080";
 
@@ -46,7 +48,10 @@ form.addEventListener("submit", async (event: SubmitEvent) => {
     }
     const authUser = (await response.json()) as User;
     localStorage.setItem("auth-user", JSON.stringify(authUser));
-    window.location.replace("../../store/home/home.html");
+
+    if (authUser.rol === Rol.USUARIO) {
+      replace("home");
+    }
   } catch {
     showMessage("No se pudo conectar con el servidor", "error");
   }
