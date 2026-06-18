@@ -130,6 +130,8 @@
 
               <div class="mt-6 space-y-3">
                 <button
+                  type="button"
+                  id="open-checkout"
                   class="cursor-pointer h-10 w-full rounded-md bg-primary px-4 text-[13px] font-semibold text-white shadow-[0_8px_20px_rgba(255,106,26,0.22)]"
                 >
                   Proceder al Pago
@@ -144,6 +146,126 @@
           </div>
         </section>
       </main>
+
+      <dialog
+        id="checkout-dialog"
+        class="checkout-dialog fixed left-1/2 top-1/2 m-0 w-[min(92vw,720px)] -translate-x-1/2 -translate-y-1/2 rounded-[28px] border-0 bg-white p-0 text-text-strong shadow-[0_32px_80px_rgba(0,0,0,0.28)] [&::backdrop]:bg-black/55"
+      >
+        <div class="p-6 sm:p-8">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-[26px] font-bold tracking-tight text-[#333]">
+                Completar Pedido
+              </h2>
+              <p class="mt-1 text-[13px] text-[#8a8a8a]">
+                Revisá tus datos antes de confirmar.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              id="close-checkout"
+              aria-label="Cerrar modal"
+              class="inline-flex h-10 w-10 items-center justify-center rounded-full text-[28px] leading-none text-[#7c7c7c] transition hover:bg-[#f4f4f4] hover:text-[#333]"
+            >
+              ×
+            </button>
+          </div>
+
+          <form id="checkout-form" class="mt-7 space-y-5">
+            <div>
+              <label
+                for="checkout-phone"
+                class="text-[15px] font-bold text-[#333]"
+              >
+                Teléfono
+              </label>
+              <input
+                id="checkout-phone"
+                name="phone"
+                type="tel"
+                required
+                placeholder="Ej: +54 9 261 123 4567"
+                class="mt-3 w-full rounded-[10px] border border-border bg-white px-4 py-3 text-[14px] outline-none transition placeholder:text-[#b4b4b4] focus:border-primary focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
+
+            <div>
+              <label
+                for="checkout-address"
+                class="text-[15px] font-bold text-[#333]"
+              >
+                Dirección de Entrega
+              </label>
+              <textarea
+                id="checkout-address"
+                name="address"
+                required
+                rows="3"
+                placeholder="Calle, número, piso, depto"
+                class="mt-3 w-full rounded-[10px] border border-border bg-white px-4 py-3 text-[14px] outline-none transition placeholder:text-[#b4b4b4] focus:border-primary focus:ring-2 focus:ring-primary/20"
+              ></textarea>
+            </div>
+
+            <div>
+              <label
+                for="checkout-payment"
+                class="text-[15px] font-bold text-[#333]"
+              >
+                Método de Pago
+              </label>
+              <select
+                id="checkout-payment"
+                name="payment"
+                required
+                class="mt-3 w-full rounded-[10px] border border-border bg-white px-4 py-3 text-[14px] outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+              >
+                <option value="" selected disabled>
+                  Seleccione una opción
+                </option>
+                <option value="efectivo">Efectivo</option>
+                <option value="tarjeta">Tarjeta</option>
+                <option value="transferencia">Transferencia</option>
+                <option value="mp">Mercado Pago</option>
+              </select>
+            </div>
+
+            <div>
+              <label
+                for="checkout-notes"
+                class="text-[15px] font-bold text-[#333]"
+              >
+                Notas adicionales (opcional)
+              </label>
+              <textarea
+                id="checkout-notes"
+                name="notes"
+                rows="3"
+                placeholder="Instrucciones especiales, timbre, etc."
+                class="mt-3 w-full rounded-[10px] border border-border bg-white px-4 py-3 text-[14px] outline-none transition placeholder:text-[#b4b4b4] focus:border-primary focus:ring-2 focus:ring-primary/20"
+              ></textarea>
+            </div>
+
+            <div class="border-t border-primary-soft/35 pt-5">
+              <div
+                class="flex items-center justify-between text-[18px] font-bold text-primary-soft"
+              >
+                <span>Total a pagar:</span>
+                <span>$25500.00</span>
+              </div>
+
+              <button
+                type="submit"
+                class="mt-5 h-12 w-full rounded-[12px] bg-success px-4 text-[15px] font-semibold text-white shadow-[0_10px_24px_rgba(47,205,176,0.25)] transition hover:brightness-95"
+              >
+                Confirmar Pago
+              </button>
+            </div>
+          </form>
+        </div>
+      </dialog>
     </div>
+
+    <script type="module" src="./cart.ts"></script>
   </body>
 </html>
