@@ -1,4 +1,5 @@
 import { Rol } from "../../../types/rol";
+import type { Category } from "../../../types/category";
 import type { Product } from "../../../types/product";
 import { getAuthorizedUser, logOut } from "../../../utils/auth";
 
@@ -11,6 +12,7 @@ const productSearch = document.getElementById(
 const productSort = document.getElementById(
   "product-sort"
 ) as HTMLSelectElement;
+const categoriesNav = document.getElementById("categories-nav") as HTMLElement;
 const logoutButton = document.getElementById(
   "logout-button"
 ) as HTMLButtonElement;
@@ -23,8 +25,10 @@ const productsStatus = document.getElementById(
   "products-status"
 ) as HTMLParagraphElement;
 let loadedProducts: Product[] = [];
+let loadedCategories: Category[] = [];
 let currentSearchQuery = "";
 let currentSortValue = "default";
+let activeCategoryId: number | null = null;
 
 const renderProductCard = (product: Product) => {
   const cardClass = product.disponible
@@ -73,13 +77,70 @@ const renderProductCard = (product: Product) => {
   `;
 
   return product.disponible
-    ? `<a href="../productDetail/productDetail.html?id=${product.id}" class="${cardClass}">${productMarkup}</a>`
+    ? `<a href="../productDetail/productDetail.html?product_id=${product.id}" class="${cardClass}">${productMarkup}</a>`
     : `<div aria-disabled="true" class="${cardClass}">${productMarkup}</div>`;
 };
 
 const renderProducts = (products: Product[]) => {
   productsCount.textContent = `${products.length} producto${products.length === 1 ? "" : "s"}`;
   productsGrid.innerHTML = products.map(renderProductCard).join("");
+};
+
+const renderCategories = () => {
+  const allCategoriesButton = `
+    <button
+      type="button"
+      data-category-id="all"
+      class="cursor-pointer flex w-full items-center gap-3 rounded-r-md border-l-2 px-4 py-3 text-left font-semibold transition ${
+        activeCategoryId === null
+          ? "border-primary bg-[#fff3ec] text-primary"
+          : "border-transparent text-[#7b7b7b] hover:border-primary hover:bg-[#fff3ec] hover:text-primary"
+      }"
+    >
+      <span>Todos los productos</span>
+    </button>
+  `;
+
+  const categoriesButtons = loadedCategories
+    .map(
+      (category) => `
+        <button
+          type="button"
+          data-category-id="${category.id}"
+          class="cursor-pointer flex w-full items-center gap-3 rounded-r-md border-l-2 px-4 py-3 text-left font-semibold transition ${
+            activeCategoryId === category.id
+              ? "border-primary bg-[#fff3ec] text-primary"
+              : "border-transparent text-[#7b7b7b] hover:border-primary hover:bg-[#fff3ec] hover:text-primary"
+          }"
+        >
+          <span>${category.nombre}</span>
+        </button>
+      `
+    )
+    .join("");
+
+  categoriesNav.innerHTML = `${allCategoriesButton}${categoriesButtons}`;
+
+  categoriesNav
+    .querySelectorAll<HTMLButtonElement>("button[data-category-id]")
+    .forEach((button) => {
+      button.addEventListener("click", async () => {
+        const categoryId = button.dataset.categoryId;
+
+        if (categoryId === "all") {
+          activeCategoryId = null;
+          await loadProducts();
+          renderCategories();
+          return;
+        }
+
+        activeCategoryId = Number(categoryId);
+        currentSearchQuery = "";
+        productSearch.value = "";
+        await loadProductsByCategory(activeCategoryId);
+        renderCategories();
+      });
+    });
 };
 
 const sortProducts = (products: Product[]) => {
@@ -141,6 +202,43 @@ const loadProducts = async () => {
   }
 };
 
+const loadProductsByCategory = async (categoryId: number) => {
+  productsStatus.textContent = "Cargando productos...";
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/productos/categoria/${categoryId}`
+    );
+
+    if (!response.ok) {
+      productsStatus.textContent = "No se pudieron cargar los productos";
+      return;
+    }
+
+    loadedProducts = (await response.json()) as Product[];
+    productsStatus.textContent = "";
+    applyFilters();
+  } catch {
+    productsStatus.textContent = "No se pudieron cargar los productos";
+  }
+};
+
+const loadCategories = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/categorias`);
+
+    if (!response.ok) {
+      productsStatus.textContent = "No se pudieron cargar las categorías";
+      return;
+    }
+
+    loadedCategories = (await response.json()) as Category[];
+    renderCategories();
+  } catch {
+    productsStatus.textContent = "No se pudieron cargar las categorías";
+  }
+};
+
 if (user) {
   userName.textContent = `${user.nombre} ${user.apellido}`;
   logoutButton.addEventListener("click", logOut);
@@ -154,5 +252,5 @@ if (user) {
     currentSortValue = target.value;
     applyFilters();
   });
-  loadProducts();
+  void loadCategories().then(() => loadProducts());
 }

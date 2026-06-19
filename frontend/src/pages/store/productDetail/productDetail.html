@@ -43,78 +43,21 @@
         </div>
       </header>
 
-      <main class="flex justify-center items-centerpx-8 py-6">
-        <section>
+      <main class="flex justify-center px-8 py-6">
+        <section class="w-full max-w-5xl">
+          <button
+            id="back-button"
+            type="button"
+            class="mb-4 inline-flex cursor-pointer items-center gap-2 rounded-md border border-border bg-white px-4 py-2 text-[13px] font-medium text-text-strong transition hover:bg-gray-soft"
+          >
+            <span aria-hidden="true">←</span>
+            <span>Volver</span>
+          </button>
+          <p id="product-status" class="mb-5 text-[13px] text-[#8b8b8b]"></p>
           <div
+            id="product-detail"
             class="grid gap-8 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] lg:items-start"
           >
-            <div
-              class="w-full max-w-105 overflow-hidden rounded-xl bg-white shadow-[0_10px_26px_rgba(0,0,0,0.08)]"
-            >
-              <div class="aspect-4/3">
-                <img
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCjUDxXKtszoBJFQbvj8UL2CbVwJVxyM_3iJUHisxHHxpTzGMvolq9XlqSBiI9_SyA38058uL0M-X0ZnRMjjNdUZDXWZ8DnIf0__PTAZc&s=10"
-                  alt="Hamburguesa triple"
-                  class="h-full w-full rounded-lg object-cover"
-                />
-              </div>
-            </div>
-
-            <div class="pt-1">
-              <h1 class="text-[30px] font-bold tracking-tight text-[#333]">
-                Hamburguesa triple
-              </h1>
-
-              <p class="mt-4 text-[22px] font-bold text-primary-soft">
-                $25000.00
-              </p>
-
-              <span
-                class="mt-3 inline-flex rounded-full bg-success px-4 py-1 text-[11px] font-semibold text-white"
-              >
-                Disponible (stock: 99)
-              </span>
-
-              <p class="mt-4 text-[13px] text-[#a0a0a0]">
-                Hamburguesa triple smash
-              </p>
-
-              <div class="mt-6">
-                <p class="text-[13px] font-semibold text-text-strong">
-                  Cantidad:
-                </p>
-                <div class="mt-3 flex items-center gap-3">
-                  <button
-                    class="cursor-pointer flex h-8 w-8 items-center justify-center rounded-md bg-gray-soft text-[18px] font-bold text-[#7c8b94]"
-                  >
-                    -
-                  </button>
-                  <div
-                    class="flex h-8 min-w-14 items-center justify-center rounded-md border border-border bg-white text-[14px] font-semibold text-text-strong"
-                  >
-                    1
-                  </div>
-                  <button
-                    class="cursor-pointer flex h-8 w-8 items-center justify-center rounded-md bg-gray-soft text-[18px] font-bold text-[#7c8b94]"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              <div class="mt-8 flex flex-wrap gap-3">
-                <button
-                  class="cursor-pointer h-11 min-w-[320px] rounded-md bg-primary px-6 text-[14px] font-semibold text-white shadow-[0_8px_20px_rgba(255,106,26,0.28)] transition hover:bg-primary-hover"
-                >
-                  Agregar al Carrito
-                </button>
-                <button
-                  class="cursor-pointer h-11 rounded-md bg-gray-soft px-6 text-[14px] font-semibold text-[#6c7780]"
-                >
-                  ← Volver
-                </button>
-              </div>
-            </div>
           </div>
         </section>
       </main>
