@@ -248,7 +248,14 @@ class PedidoServiceTest {
     }
 
     private PedidoCreateRequestDTO createRequest(Long idUsuario, DetallePedidoCreateRequestDTO... detalles) {
-        return new PedidoCreateRequestDTO(Estado.PENDIENTE, FormaPago.TARJETA, idUsuario, List.of(detalles));
+        return new PedidoCreateRequestDTO(
+                Estado.PENDIENTE,
+                FormaPago.TARJETA,
+                "2615551234",
+                "San Martín 123",
+                "",
+                idUsuario,
+                List.of(detalles));
     }
 
     private PedidoResponseDTO createExpectedResponse() {
@@ -269,6 +276,9 @@ class PedidoServiceTest {
                 LocalDate.now(),
                 Estado.PENDIENTE,
                 350.0,
+                "2615551234",
+                "San Martín 123",
+                "",
                 FormaPago.TARJETA,
                 1L,
                 List.of(detalle1, detalle2));

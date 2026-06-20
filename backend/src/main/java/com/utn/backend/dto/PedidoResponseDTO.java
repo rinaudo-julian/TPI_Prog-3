@@ -17,6 +17,12 @@ public record PedidoResponseDTO(
 
         @Schema(description = "Total del pedido", example = "350.00") Double total,
 
+        @Schema(description = "Teléfono de contacto", example = "+54 9 261 123 4567") String telefono,
+
+        @Schema(description = "Dirección de entrega", example = "San Martín 123") String direccion,
+
+        @Schema(description = "Nota adicional", example = "Tocar timbre") String notaAdicional,
+
         @Schema(description = "Forma de pago", example = "TARJETA") FormaPago formaPago,
 
         @Schema(description = "ID del usuario asociado", example = "1") Long idUsuario,

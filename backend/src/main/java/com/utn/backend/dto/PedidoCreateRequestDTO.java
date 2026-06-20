@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
 
@@ -16,6 +17,14 @@ public record PedidoCreateRequestDTO(
 
         @Schema(description = "Forma de pago", example = "TARJETA")
         @NotNull(message = "La forma de pago es obligatoria") FormaPago formaPago,
+
+        @Schema(description = "Teléfono de contacto", example = "+54 9 261 123 4567")
+        @NotBlank(message = "El teléfono es obligatorio") String telefono,
+
+        @Schema(description = "Dirección de entrega", example = "San Martín 123")
+        @NotBlank(message = "La dirección es obligatoria") String direccion,
+
+        @Schema(description = "Nota adicional", example = "Tocar timbre") String notaAdicional,
 
         @Schema(description = "Identificador del usuario", example = "1")
         @NotNull(message = "El usuario es obligatorio") Long idUsuario,

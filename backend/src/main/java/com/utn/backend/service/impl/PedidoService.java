@@ -49,6 +49,9 @@ public class PedidoService {
         pedido.setFecha(LocalDate.now());
         pedido.setEstado(requestDTO.estado());
         pedido.setFormaPago(requestDTO.formaPago());
+        pedido.setTelefono(requestDTO.telefono());
+        pedido.setDireccion(requestDTO.direccion());
+        pedido.setNotaAdicional(requestDTO.notaAdicional());
         pedido.setUsuario(usuario);
 
         for (Producto producto : productos) {

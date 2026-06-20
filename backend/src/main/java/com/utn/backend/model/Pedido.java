@@ -27,6 +27,15 @@ public class Pedido extends Base implements Calculable {
     @Column(nullable = false)
     private Double total;
 
+    @Column(nullable = false)
+    private String telefono;
+
+    @Column(nullable = false)
+    private String direccion;
+
+    @Column
+    private String notaAdicional;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private FormaPago formaPago;
