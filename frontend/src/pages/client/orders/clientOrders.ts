@@ -1,12 +1,18 @@
 import { Rol } from "../../../types/rol";
 import { getAuthorizedUser, logOut } from "../../../utils/auth";
+import { getCartCount } from "../../../utils/cart";
 
 const user = getAuthorizedUser(Rol.USUARIO);
 const logoutButton = document.getElementById("logout-button") as HTMLButtonElement;
+const cartCount = document.getElementById("cart-count") as HTMLSpanElement | null;
 
 if (user) {
   const userName = document.getElementById("user-name") as HTMLSpanElement;
   userName.textContent = `${user.nombre} ${user.apellido}`;
+
+  if (cartCount) {
+    cartCount.textContent = String(getCartCount());
+  }
 }
 
 logoutButton.addEventListener("click", logOut);

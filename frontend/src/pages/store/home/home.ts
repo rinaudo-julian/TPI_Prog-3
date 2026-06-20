@@ -2,6 +2,7 @@ import { Rol } from "../../../types/rol";
 import type { Category } from "../../../types/category";
 import type { Product } from "../../../types/product";
 import { getAuthorizedUser, logOut } from "../../../utils/auth";
+import { getCartCount } from "../../../utils/cart";
 
 const API_BASE_URL = "http://localhost:8080";
 
@@ -24,6 +25,7 @@ const productsCount = document.getElementById(
 const productsStatus = document.getElementById(
   "products-status"
 ) as HTMLParagraphElement;
+const cartCount = document.getElementById("cart-count") as HTMLSpanElement | null;
 let loadedProducts: Product[] = [];
 let loadedCategories: Category[] = [];
 let currentSearchQuery = "";
@@ -242,6 +244,9 @@ const loadCategories = async () => {
 if (user) {
   userName.textContent = `${user.nombre} ${user.apellido}`;
   logoutButton.addEventListener("click", logOut);
+  if (cartCount) {
+    cartCount.textContent = String(getCartCount());
+  }
   productSearch.addEventListener("input", (event: InputEvent) => {
     const target = event.target as HTMLInputElement;
     currentSearchQuery = target.value;
