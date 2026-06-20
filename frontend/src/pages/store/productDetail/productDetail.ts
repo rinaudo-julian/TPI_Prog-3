@@ -1,5 +1,6 @@
 import { Rol } from "../../../types/rol";
 import type { Product } from "../../../types/product";
+import { addProductToCart, getCart, getCartCount } from "../../../utils/cart";
 import { getAuthorizedUser, logOut } from "../../../utils/auth";
 import { navigate } from "../../../utils/routes";
 
@@ -11,10 +12,17 @@ const logoutButton = document.getElementById(
 ) as HTMLButtonElement;
 const backButton = document.getElementById("back-button") as HTMLButtonElement;
 const userName = document.getElementById("user-name") as HTMLSpanElement;
+const cartCount = document.getElementById(
+  "cart-count"
+) as HTMLSpanElement | null;
 const productStatus = document.getElementById(
   "product-status"
 ) as HTMLParagraphElement;
 const productDetail = document.getElementById("product-detail") as HTMLElement;
+const ADD_TO_CART_LABEL = "Agregar al carrito";
+const ADD_TO_CART_SUCCESS_LABEL = "Agregado correctamente";
+const ADD_TO_CART_FEEDBACK_TIMEOUT = 1000;
+let addToCartFeedbackTimeoutId: number | undefined;
 
 const renderProductDetail = (product: Product) => {
   productDetail.innerHTML = `
@@ -71,8 +79,8 @@ const renderProductDetail = (product: Product) => {
           <input
             id="quantity-input"
             type="number"
-            value="0"
-            min="0"
+            value="1"
+            min="1"
             max="${product.stock}"
             step="1"
             inputmode="numeric"
@@ -94,7 +102,7 @@ const renderProductDetail = (product: Product) => {
           id="add-to-cart-button"
           class="cursor-pointer h-11 min-w-[320px] rounded-md bg-primary px-6 text-[14px] font-semibold text-white shadow-[0_8px_20px_rgba(255,106,26,0.28)] transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Agregar al Carrito
+          Agregar al carrito
         </button>
       </div>
     </div>
@@ -143,7 +151,7 @@ const renderProductDetail = (product: Product) => {
   };
 
   minusButton.addEventListener("click", () => {
-    const nextValue = Math.max(0, Number(quantityInput.value) - 1);
+    const nextValue = Math.max(1, Number(quantityInput.value) - 1);
     quantityInput.value = String(nextValue);
     updateButtons();
   });
@@ -158,14 +166,40 @@ const renderProductDetail = (product: Product) => {
     const rawValue = Number(quantityInput.value);
 
     if (Number.isNaN(rawValue)) {
-      quantityInput.value = "0";
-    } else if (rawValue < 0) {
-      quantityInput.value = "0";
+      quantityInput.value = "1";
+    } else if (rawValue < 1) {
+      quantityInput.value = "1";
     } else if (rawValue > product.stock) {
       quantityInput.value = String(product.stock);
     }
 
     updateButtons();
+  });
+
+  addToCartButton.addEventListener("click", () => {
+    const selectedQuantity = Number(quantityInput.value);
+    const existingCartItem = getCart().find((item) => item.id === product.id);
+    const currentQuantity = existingCartItem?.quantity ?? 0;
+
+    if (currentQuantity + selectedQuantity > product.stock) {
+      quantityFeedback.textContent =
+        "Ya tenés la cantidad límite de compra para este producto.";
+      return;
+    }
+
+    addProductToCart(product, selectedQuantity);
+    if (addToCartFeedbackTimeoutId) {
+      window.clearTimeout(addToCartFeedbackTimeoutId);
+    }
+    addToCartButton.textContent = ADD_TO_CART_SUCCESS_LABEL;
+    addToCartFeedbackTimeoutId = window.setTimeout(() => {
+      addToCartButton.textContent = ADD_TO_CART_LABEL;
+    }, ADD_TO_CART_FEEDBACK_TIMEOUT);
+    quantityFeedback.textContent = `Máximo disponible: ${product.stock}`;
+
+    if (cartCount) {
+      cartCount.textContent = String(getCartCount());
+    }
   });
 
   updateButtons();
@@ -217,5 +251,8 @@ if (user) {
   userName.textContent = `${user.nombre} ${user.apellido}`;
   logoutButton.addEventListener("click", logOut);
   backButton.addEventListener("click", () => navigate("home"));
+  if (cartCount) {
+    cartCount.textContent = String(getCartCount());
+  }
   void loadProduct();
 }
