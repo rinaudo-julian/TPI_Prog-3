@@ -16,12 +16,18 @@ const openCategoryModalButton = document.getElementById(
 const categoryDialog = document.getElementById(
   "category-dialog"
 ) as HTMLDialogElement;
+const categoryDialogTitle = document.getElementById(
+  "category-dialog-title"
+) as HTMLHeadingElement;
 const closeCategoryModalButton = document.getElementById(
   "close-category-modal"
 ) as HTMLButtonElement;
 const categoryForm = document.getElementById(
   "category-form"
 ) as HTMLFormElement;
+const categorySubmitButton = document.getElementById(
+  "category-submit-button"
+) as HTMLButtonElement;
 const categoryNameInput = document.getElementById(
   "category-name"
 ) as HTMLInputElement;
@@ -34,6 +40,12 @@ const categoryFormStatus = document.getElementById(
 const categoriesTableBody = document.getElementById(
   "categories-table-body"
 ) as HTMLTableSectionElement;
+
+type CategoryFormMode = "create" | "edit";
+
+let categoryFormMode: CategoryFormMode = "create";
+let selectedCategoryId: number | null = null;
+let loadedCategories: Category[] = [];
 
 const fetchJson = async <T>(path: string): Promise<T> => {
   const response = await fetch(`${API_BASE_URL}${path}`);
@@ -66,19 +78,41 @@ const clearCategoryFormStatus = () => {
     "hidden rounded-md px-4 py-3 text-[13px] font-medium";
 };
 
-const openCategoryModal = () => {
+const openCategoryModal = (
+  mode: CategoryFormMode,
+  category?: Category
+) => {
+  categoryFormMode = mode;
+  selectedCategoryId = category?.id ?? null;
+
+  categoryDialogTitle.textContent =
+    mode === "create" ? "Nueva Categoría" : "Editar Categoría";
+  categorySubmitButton.textContent = mode === "create" ? "Guardar" : "Editar";
+
   clearCategoryFormStatus();
   categoryForm.reset();
+
+  if (category) {
+    categoryNameInput.value = category.nombre;
+    categoryDescriptionInput.value = category.descripcion ?? "";
+  }
+
   categoryDialog.showModal();
   categoryNameInput.focus();
 };
 
 const closeCategoryModal = () => {
   clearCategoryFormStatus();
+  categoryFormMode = "create";
+  selectedCategoryId = null;
+  categoryDialogTitle.textContent = "Nueva Categoría";
+  categorySubmitButton.textContent = "Guardar";
   categoryDialog.close();
 };
 
 const renderCategories = (categories: Category[]) => {
+  loadedCategories = categories;
+
   if (!categories.length) {
     categoriesTableBody.innerHTML = renderEmptyState(
       "No hay categorías para mostrar"
@@ -96,6 +130,8 @@ const renderCategories = (categories: Category[]) => {
             <div class="flex flex-wrap gap-3">
               <button
                 type="button"
+                data-action="edit"
+                data-category-id="${category.id}"
                 class="cursor-pointer rounded-md bg-gray-soft hover:bg-gray-soft-hover px-5 py-2 text-[13px] font-semibold text-[#4f5e67]"
               >
                 Editar
@@ -142,8 +178,13 @@ const createCategory = async () => {
   };
 
   try {
-    const response = await fetch(`${API_BASE_URL}/categorias`, {
-      method: "POST",
+    const url =
+      categoryFormMode === "edit" && selectedCategoryId !== null
+        ? `${API_BASE_URL}/categorias/${selectedCategoryId}`
+        : `${API_BASE_URL}/categorias`;
+
+    const response = await fetch(url, {
+      method: categoryFormMode === "edit" ? "PUT" : "POST",
       headers: {
         "Content-Type": "application/json"
       },
@@ -151,7 +192,10 @@ const createCategory = async () => {
     });
 
     if (!response.ok) {
-      let errorMessage = "No se pudo crear la categoría";
+      let errorMessage =
+        categoryFormMode === "edit"
+          ? "No se pudo editar la categoría"
+          : "No se pudo crear la categoría";
 
       try {
         const errorResponse = (await response.json()) as Partial<ErrorResponse>;
@@ -167,7 +211,12 @@ const createCategory = async () => {
     closeCategoryModal();
     await loadCategories();
   } catch {
-    setCategoryFormStatus("No se pudo crear la categoría", true);
+    setCategoryFormStatus(
+      categoryFormMode === "edit"
+        ? "No se pudo editar la categoría"
+        : "No se pudo crear la categoría",
+      true
+    );
   }
 };
 
@@ -176,12 +225,37 @@ if (user) {
   logoutButton.addEventListener("click", logOut);
 }
 
-openCategoryModalButton.addEventListener("click", openCategoryModal);
+openCategoryModalButton.addEventListener("click", () => {
+  openCategoryModal("create");
+});
 closeCategoryModalButton.addEventListener("click", closeCategoryModal);
 
 categoryDialog.addEventListener("click", (event: MouseEvent) => {
   if (event.target === categoryDialog) {
     closeCategoryModal();
+  }
+});
+
+categoriesTableBody.addEventListener("click", (event: MouseEvent) => {
+  const target = event.target as HTMLElement;
+  const button = target.closest<HTMLButtonElement>(
+    'button[data-action="edit"]'
+  );
+
+  if (!button) {
+    return;
+  }
+
+  const categoryId = Number(button.dataset.categoryId);
+
+  if (Number.isNaN(categoryId)) {
+    return;
+  }
+
+  const category = loadedCategories.find((item) => item.id === categoryId);
+
+  if (category) {
+    openCategoryModal("edit", category);
   }
 });
 
