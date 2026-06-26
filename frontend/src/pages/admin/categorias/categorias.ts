@@ -210,11 +210,6 @@ const createCategory = async () => {
   const nombre = categoryNameInput.value.trim();
   const descripcion = categoryDescriptionInput.value.trim();
 
-  if (!nombre) {
-    categoryForm.reportValidity();
-    return;
-  }
-
   const requestBody = {
     nombre,
     descripcion: descripcion || undefined
@@ -311,11 +306,6 @@ categoriesTableBody.addEventListener("click", (event: MouseEvent) => {
 
 categoryForm.addEventListener("submit", (event: SubmitEvent) => {
   event.preventDefault();
-
-  if (!categoryForm.checkValidity()) {
-    categoryForm.reportValidity();
-    return;
-  }
 
   void createCategory();
 });
