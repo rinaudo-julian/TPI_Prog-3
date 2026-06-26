@@ -371,4 +371,4 @@ orderDetailDialog?.addEventListener("click", (event: MouseEvent) => {
   }
 });
 
-void loadOrders();
+loadOrders();

@@ -317,7 +317,7 @@ checkoutForm.addEventListener("submit", (event: SubmitEvent) => {
     })),
   };
 
-  void (async () => {
+  (async () => {
     try {
       if (confirmPaymentButton) {
         confirmPaymentButton.disabled = true;

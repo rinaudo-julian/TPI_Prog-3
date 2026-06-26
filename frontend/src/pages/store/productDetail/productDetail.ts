@@ -254,5 +254,5 @@ if (user) {
   if (cartCount) {
     cartCount.textContent = String(getCartCount());
   }
-  void loadProduct();
+  loadProduct();
 }

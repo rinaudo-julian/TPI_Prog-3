@@ -307,7 +307,7 @@ categoriesTableBody.addEventListener("click", (event: MouseEvent) => {
 categoryForm.addEventListener("submit", (event: SubmitEvent) => {
   event.preventDefault();
 
-  void createCategory();
+  createCategory();
 });
 
-void loadCategories();
+loadCategories();

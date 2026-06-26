@@ -90,4 +90,4 @@ const loadStats = async () => {
   }
 };
 
-void loadStats();
+loadStats();
