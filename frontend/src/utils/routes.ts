@@ -5,7 +5,8 @@ const ROUTES = {
   cart: "/src/pages/store/cart/cart.html",
   productDetail: "/src/pages/store/productDetail/productDetail.html",
   clientOrders: "/src/pages/client/orders/clientOrders.html",
-  adminHome: "/src/pages/admin/adminHome/adminHome.html"
+  adminHome: "/src/pages/admin/adminHome/adminHome.html",
+  adminCategories: "/src/pages/admin/categorias/categorias.html"
 } as const;
 
 type RouteName = keyof typeof ROUTES;
