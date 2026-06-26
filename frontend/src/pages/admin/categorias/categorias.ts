@@ -37,6 +37,9 @@ const categoryDescriptionInput = document.getElementById(
 const categoryFormStatus = document.getElementById(
   "category-form-status"
 ) as HTMLDivElement;
+const categoriesPageStatus = document.getElementById(
+  "categories-page-status"
+) as HTMLParagraphElement;
 const categoriesTableBody = document.getElementById(
   "categories-table-body"
 ) as HTMLTableSectionElement;
@@ -78,6 +81,18 @@ const clearCategoryFormStatus = () => {
     "hidden rounded-md px-4 py-3 text-[13px] font-medium";
 };
 
+const setPageStatus = (message: string, isError = false) => {
+  categoriesPageStatus.textContent = message;
+  categoriesPageStatus.className = isError
+    ? "ml-[110px] mt-4 text-[13px] font-medium text-danger"
+    : "ml-[110px] mt-4 text-[13px] font-medium text-success";
+};
+
+const clearPageStatus = () => {
+  categoriesPageStatus.textContent = "";
+  categoriesPageStatus.className = "ml-[110px] mt-4 hidden text-[13px] font-medium";
+};
+
 const openCategoryModal = (
   mode: CategoryFormMode,
   category?: Category
@@ -112,6 +127,7 @@ const closeCategoryModal = () => {
 
 const renderCategories = (categories: Category[]) => {
   loadedCategories = categories;
+  clearPageStatus();
 
   if (!categories.length) {
     categoriesTableBody.innerHTML = renderEmptyState(
@@ -138,6 +154,8 @@ const renderCategories = (categories: Category[]) => {
               </button>
               <button
                 type="button"
+                data-action="delete"
+                data-category-id="${category.id}"
                 class="cursor-pointer rounded-md bg-danger hover:bg-danger-hover px-5 py-2 text-[13px] font-semibold text-white"
               >
                 Eliminar
@@ -152,6 +170,7 @@ const renderCategories = (categories: Category[]) => {
 
 const loadCategories = async () => {
   categoriesTableBody.innerHTML = "";
+  clearPageStatus();
 
   try {
     const categories = await fetchJson<Category[]>("/categorias");
@@ -160,6 +179,32 @@ const loadCategories = async () => {
     categoriesTableBody.innerHTML = renderEmptyState(
       "No se pudieron cargar las categorías"
     );
+  }
+};
+
+const deleteCategory = async (categoryId: number) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/categorias/${categoryId}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) {
+      let errorMessage = "No se pudo eliminar la categoría";
+
+      try {
+        const errorResponse = (await response.json()) as Partial<ErrorResponse>;
+        errorMessage = errorResponse.message ?? errorMessage;
+      } catch {
+        // keep default error message
+      }
+
+      setPageStatus(errorMessage, true);
+      return;
+    }
+
+    await loadCategories();
+  } catch {
+    setPageStatus("No se pudo eliminar la categoría", true);
   }
 };
 
@@ -238,9 +283,7 @@ categoryDialog.addEventListener("click", (event: MouseEvent) => {
 
 categoriesTableBody.addEventListener("click", (event: MouseEvent) => {
   const target = event.target as HTMLElement;
-  const button = target.closest<HTMLButtonElement>(
-    'button[data-action="edit"]'
-  );
+  const button = target.closest<HTMLButtonElement>("button[data-action]");
 
   if (!button) {
     return;
@@ -254,8 +297,17 @@ categoriesTableBody.addEventListener("click", (event: MouseEvent) => {
 
   const category = loadedCategories.find((item) => item.id === categoryId);
 
-  if (category) {
-    openCategoryModal("edit", category);
+  if (!category) {
+    return;
+  }
+
+  switch (button.dataset.action) {
+    case "edit":
+      openCategoryModal("edit", category);
+      break;
+    case "delete":
+      void deleteCategory(categoryId);
+      break;
   }
 });
 
