@@ -63,12 +63,19 @@ const loadStats = async () => {
     ]);
 
     const activeProducts = products.filter((product) => product.disponible);
-    const pendingOrders = orders.filter((order) => order.estado === "PENDIENTE");
+    const pendingOrders = orders.filter(
+      (order) => order.estado === "PENDIENTE"
+    );
     const preparingOrders = orders.filter(
       (order) => order.estado === "CONFIRMADO"
     );
-    const completedOrders = orders.filter((order) => order.estado === "TERMINADO");
-    const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+    const completedOrders = orders.filter(
+      (order) => order.estado === "TERMINADO"
+    );
+    const totalRevenue = completedOrders.reduce(
+      (sum, order) => sum + order.total,
+      0
+    );
 
     categoriesCount.textContent = String(categories.length);
     productsCount.textContent = String(products.length);

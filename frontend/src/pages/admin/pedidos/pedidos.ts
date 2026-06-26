@@ -1,48 +1,40 @@
 import { Rol } from "../../../types/rol";
 import { getAuthorizedUser, logOut } from "../../../utils/auth";
-import { getCartCount } from "../../../utils/cart";
 import type { ErrorResponse } from "../../../types/error";
 import type { Order, OrderDetail, OrderStatus } from "../../../types/order";
 
 const API_BASE_URL = "http://localhost:8080";
+const ORDER_STATUSES: OrderStatus[] = [
+  "PENDIENTE",
+  "CONFIRMADO",
+  "TERMINADO",
+  "CANCELADO"
+];
 
-const ORDER_STATUS_META: Record<
-  OrderStatus,
-  { badge: string; panel: string; messageTitle: string; messageBody: string }
-> = {
-  PENDIENTE: {
-    badge: "bg-[#ffe1a3] text-[#f4b23e]",
-    panel: "border-[#ffd88b] bg-[#ffe29a] text-[#7a5a00]",
-    messageTitle: "Tu pedido está siendo procesado",
-    messageBody: "Te notificaremos cuando haya un cambio de estado."
-  },
-  CONFIRMADO: {
-    badge: "bg-[#d7f5e7] text-success",
-    panel: "border-[#bdeed8] bg-[#ecfbf5] text-[#116b4c]",
-    messageTitle: "Tu pedido fue confirmado",
-    messageBody: "Ya está en preparación y avanzando al siguiente paso."
-  },
-  TERMINADO: {
-    badge: "bg-[#dbeafe] text-primary-soft",
-    panel: "border-[#bcd8ff] bg-[#eef5ff] text-[#1d4ed8]",
-    messageTitle: "Tu pedido ya está terminado",
-    messageBody: "Podés revisarlo y esperar la entrega si corresponde."
-  },
-  CANCELADO: {
-    badge: "bg-[#ffd9d9] text-danger",
-    panel: "border-[#ffc0c0] bg-[#fff1f1] text-[#b91c1c]",
-    messageTitle: "Tu pedido fue cancelado",
-    messageBody: "Si necesitás ayuda, contactate con el local."
-  }
-};
+const ORDER_STATUS_META: Record<OrderStatus, { badge: string; panel: string }> =
+  {
+    PENDIENTE: {
+      badge: "bg-[#ffe1a3] text-[#f4b23e]",
+      panel: "border-[#ffd88b] bg-[#ffe29a] text-[#7a5a00]"
+    },
+    CONFIRMADO: {
+      badge: "bg-[#d7f5e7] text-success",
+      panel: "border-[#bdeed8] bg-[#ecfbf5] text-[#116b4c]"
+    },
+    TERMINADO: {
+      badge: "bg-[#dbeafe] text-primary-soft",
+      panel: "border-[#bcd8ff] bg-[#eef5ff] text-[#1d4ed8]"
+    },
+    CANCELADO: {
+      badge: "bg-[#ffd9d9] text-danger",
+      panel: "border-[#ffc0c0] bg-[#fff1f1] text-[#b91c1c]"
+    }
+  };
 
-const user = getAuthorizedUser(Rol.USUARIO);
+const user = getAuthorizedUser(Rol.ADMIN);
 const logoutButton = document.getElementById(
   "logout-button"
 ) as HTMLButtonElement;
-const cartCount = document.getElementById(
-  "cart-count"
-) as HTMLSpanElement | null;
 const ordersCount = document.getElementById(
   "orders-count"
 ) as HTMLParagraphElement | null;
@@ -89,17 +81,21 @@ const orderDetailSubtotal = document.getElementById(
 const orderDetailTotal = document.getElementById(
   "order-detail-total"
 ) as HTMLSpanElement | null;
-const orderDetailMessage = document.getElementById(
-  "order-detail-message"
+const orderStatusForm = document.getElementById(
+  "order-status-form"
+) as HTMLFormElement | null;
+const orderStatusFormStatus = document.getElementById(
+  "order-status-form-status"
 ) as HTMLDivElement | null;
-const orderDetailMessageTitle = document.getElementById(
-  "order-detail-message-title"
-) as HTMLParagraphElement | null;
-const orderDetailMessageBody = document.getElementById(
-  "order-detail-message-body"
-) as HTMLParagraphElement | null;
+const orderStatusSelect = document.getElementById(
+  "order-status-select"
+) as HTMLSelectElement | null;
+const orderStatusSubmitButton = document.getElementById(
+  "order-status-submit-button"
+) as HTMLButtonElement | null;
 
 let loadedOrders: Order[] = [];
+let selectedOrderId: number | null = null;
 let selectedStatusFilter: OrderStatus | "ALL" = "ALL";
 
 const formatCurrency = (value: number) => `$${value.toFixed(2)}`;
@@ -121,6 +117,39 @@ const getFilteredOrders = () =>
   selectedStatusFilter === "ALL"
     ? loadedOrders
     : loadedOrders.filter((order) => order.estado === selectedStatusFilter);
+
+const setOrderStatusFormStatus = (message: string, isError = false) => {
+  if (!orderStatusFormStatus) {
+    return;
+  }
+
+  orderStatusFormStatus.textContent = message;
+  orderStatusFormStatus.className = isError
+    ? "rounded-md bg-danger px-4 py-3 text-[13px] font-medium text-white"
+    : "rounded-md bg-success px-4 py-3 text-[13px] font-medium text-white";
+};
+
+const clearOrderStatusFormStatus = () => {
+  if (!orderStatusFormStatus) {
+    return;
+  }
+
+  orderStatusFormStatus.textContent = "";
+  orderStatusFormStatus.className =
+    "hidden rounded-md px-4 py-3 text-[13px] font-medium";
+};
+
+const setOrderStatusFormLoading = (isLoading: boolean) => {
+  if (!orderStatusSubmitButton || !orderStatusSelect) {
+    return;
+  }
+
+  orderStatusSubmitButton.disabled = isLoading;
+  orderStatusSelect.disabled = isLoading;
+  orderStatusSubmitButton.textContent = isLoading
+    ? "Actualizando..."
+    : "Actualizar Estado";
+};
 
 const renderEmptyState = (message: string, isError = false) => `
   <div class="rounded-lg border ${isError ? "border-danger/30 bg-danger/10 text-danger" : "border-dashed border-border bg-white text-[#7b7b7b]"} px-6 py-10 text-center shadow-[0_4px_14px_rgba(0,0,0,0.05)]">
@@ -234,20 +263,19 @@ const openOrderDetail = (order: Order) => {
     !orderDetailProducts ||
     !orderDetailSubtotal ||
     !orderDetailTotal ||
-    !orderDetailMessage ||
-    !orderDetailMessageTitle ||
-    !orderDetailMessageBody
+    !orderStatusSelect
   ) {
     return;
   }
 
+  selectedOrderId = order.id;
   const statusMeta = getOrderStatusMeta(order.estado);
   const subtotal = getOrderSubtotal(order);
 
   orderDetailStatus.className = `mx-auto inline-flex items-center gap-2 rounded-full px-6 py-3 text-[14px] font-bold uppercase tracking-wide ${statusMeta.badge}`;
   orderDetailStatus.innerHTML = `
     <span class="h-2.5 w-2.5 rounded-full bg-current"></span>
-    <span>${order.estado}</spa>
+    <span>${order.estado}</span>
   `;
   orderDetailDate.textContent = `📅 ${formatDate(order.fecha)}`;
   orderDetailAddress.textContent = order.direccion;
@@ -265,11 +293,17 @@ const openOrderDetail = (order: Order) => {
   orderDetailProducts.innerHTML = renderOrderProducts(order);
   orderDetailSubtotal.textContent = formatCurrency(subtotal);
   orderDetailTotal.textContent = formatCurrency(order.total);
-  orderDetailMessage.className = `mt-8 rounded-2xl border px-5 py-4 shadow-[0_4px_14px_rgba(0,0,0,0.04)] ${statusMeta.panel}`;
-  orderDetailMessageTitle.textContent = statusMeta.messageTitle;
-  orderDetailMessageBody.textContent = statusMeta.messageBody;
+  orderStatusSelect.value = order.estado;
+  clearOrderStatusFormStatus();
 
   orderDetailDialog.showModal();
+};
+
+const closeOrderDetail = () => {
+  selectedOrderId = null;
+  clearOrderStatusFormStatus();
+  setOrderStatusFormLoading(false);
+  orderDetailDialog?.close();
 };
 
 const renderOrders = () => {
@@ -316,15 +350,10 @@ const setLoadingState = (message: string) => {
 };
 
 const loadOrders = async () => {
-  if (!user?.id) {
-    renderOrdersError("No se pudo identificar el usuario");
-    return;
-  }
-
   setLoadingState("Cargando tus pedidos...");
 
   try {
-    const response = await fetch(`${API_BASE_URL}/pedidos/usuario/${user.id}`);
+    const response = await fetch(`${API_BASE_URL}/pedidos`);
 
     if (response.status === 404) {
       const errorResponse = (await response.json()) as Partial<ErrorResponse>;
@@ -344,13 +373,48 @@ const loadOrders = async () => {
   }
 };
 
+const updateOrderStatus = async (orderId: number, status: OrderStatus) => {
+  try {
+    setOrderStatusFormLoading(true);
+    clearOrderStatusFormStatus();
+
+    const response = await fetch(`${API_BASE_URL}/pedidos/${orderId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ estado: status })
+    });
+
+    if (!response.ok) {
+      let errorMessage = "No se pudo actualizar el estado del pedido";
+
+      try {
+        const errorResponse = (await response.json()) as Partial<ErrorResponse>;
+        errorMessage = errorResponse.message ?? errorMessage;
+      } catch {
+        // keep default error message
+      }
+
+      setOrderStatusFormStatus(errorMessage, true);
+      return;
+    }
+
+    closeOrderDetail();
+    await loadOrders();
+  } catch {
+    setOrderStatusFormStatus(
+      "No se pudo actualizar el estado del pedido",
+      true
+    );
+  } finally {
+    setOrderStatusFormLoading(false);
+  }
+};
+
 if (user) {
   const userName = document.getElementById("user-name") as HTMLSpanElement;
-  userName.textContent = `${user.nombre} ${user.apellido}`;
-
-  if (cartCount) {
-    cartCount.textContent = String(getCartCount());
-  }
+  userName.textContent = `${user.nombre}`;
 }
 
 logoutButton.addEventListener("click", logOut);
@@ -358,6 +422,23 @@ logoutButton.addEventListener("click", logOut);
 ordersStatusFilter?.addEventListener("change", () => {
   selectedStatusFilter = ordersStatusFilter.value as OrderStatus | "ALL";
   renderOrders();
+});
+
+orderStatusForm?.addEventListener("submit", (event: SubmitEvent) => {
+  event.preventDefault();
+
+  if (selectedOrderId === null || !orderStatusSelect) {
+    return;
+  }
+
+  const nextStatus = orderStatusSelect.value as OrderStatus;
+
+  if (!ORDER_STATUSES.includes(nextStatus)) {
+    setOrderStatusFormStatus("Seleccioná un estado válido", true);
+    return;
+  }
+
+  updateOrderStatus(selectedOrderId, nextStatus);
 });
 
 ordersList?.addEventListener("click", (event: MouseEvent) => {
@@ -382,12 +463,12 @@ ordersList?.addEventListener("click", (event: MouseEvent) => {
 });
 
 closeOrderDetailButton?.addEventListener("click", () => {
-  orderDetailDialog?.close();
+  closeOrderDetail();
 });
 
 orderDetailDialog?.addEventListener("click", (event: MouseEvent) => {
   if (event.target === orderDetailDialog) {
-    orderDetailDialog.close();
+    closeOrderDetail();
   }
 });
 
