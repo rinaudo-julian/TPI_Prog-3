@@ -51,6 +51,8 @@ form.addEventListener("submit", async (event: SubmitEvent) => {
 
     if (authUser.rol === Rol.USUARIO) {
       replace("home");
+    } else if (authUser.rol === Rol.ADMIN) {
+      replace("adminHome");
     }
   } catch {
     showMessage("No se pudo conectar con el servidor", "error");

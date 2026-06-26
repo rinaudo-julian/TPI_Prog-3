@@ -25,7 +25,9 @@ const productsCount = document.getElementById(
 const productsStatus = document.getElementById(
   "products-status"
 ) as HTMLParagraphElement;
-const cartCount = document.getElementById("cart-count") as HTMLSpanElement | null;
+const cartCount = document.getElementById(
+  "cart-count"
+) as HTMLSpanElement | null;
 let loadedProducts: Product[] = [];
 let loadedCategories: Category[] = [];
 let currentSearchQuery = "";
@@ -257,5 +259,5 @@ if (user) {
     currentSortValue = target.value;
     applyFilters();
   });
-  void loadCategories().then(() => loadProducts());
+  loadCategories().then(() => loadProducts());
 }

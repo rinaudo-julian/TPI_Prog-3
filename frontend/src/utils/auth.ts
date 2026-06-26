@@ -7,6 +7,7 @@ export const getAuthorizedUser = (requiredRol: Rol): User | null => {
   const user: User | null = rawUser ? JSON.parse(rawUser) : null;
 
   if (user?.rol !== requiredRol) {
+    localStorage.removeItem("auth-user");
     replace("login");
     return null;
   }

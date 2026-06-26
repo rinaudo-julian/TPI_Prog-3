@@ -4,7 +4,8 @@ const ROUTES = {
   register: "/src/pages/auth/register/register.html",
   cart: "/src/pages/store/cart/cart.html",
   productDetail: "/src/pages/store/productDetail/productDetail.html",
-  clientOrders: "/src/pages/client/orders/clientOrders.html"
+  clientOrders: "/src/pages/client/orders/clientOrders.html",
+  adminHome: "/src/pages/admin/adminHome/adminHome.html"
 } as const;
 
 type RouteName = keyof typeof ROUTES;

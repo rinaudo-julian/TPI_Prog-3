@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="/src/style.css" rel="stylesheet" />
+    <title>Food Store - Admin</title>
+  </head>
+  <body class="min-h-screen bg-background font-sans text-text-strong">
+    <div class="flex min-h-screen flex-col">
+      <header class="border-b border-border bg-white px-8 py-4">
+        <div
+          class="flex items-center justify-end gap-8 text-[14px] text-[#666]"
+        >
+          <a
+            href="../../store/home/home.html"
+            class="mr-auto flex items-center gap-2 text-primary"
+          >
+            <span class="text-[18px]">🍕</span>
+            <span class="font-semibold">Food Store</span>
+          </a>
+          <a href="../../store/home/home.html" class="hover:text-primary"
+            >Tienda</a
+          >
+          <a
+            href="./adminHome.html"
+            class="font-medium text-text-strong hover:text-primary"
+            >Panel Admin</a
+          >
+          <span id="user-name" class="text-text-strong"></span>
+          <button
+            id="logout-button"
+            type="button"
+            class="cursor-pointer rounded-md border border-border bg-gray-soft px-5 py-2 text-[13px] text-black hover:bg-gray-soft-hover"
+          >
+            Cerrar Sesión
+          </button>
+        </div>
+      </header>
+
+      <div class="flex min-h-0 flex-1">
+        <aside
+          class="flex w-57.5 shrink-0 flex-col border-r border-border bg-white"
+        >
+          <div class="px-5 py-6">
+            <p class="text-[16px] font-semibold text-primary-soft">
+              Administración
+            </p>
+            <p class="mt-1 text-[11px] text-[#a3a3a3]">Panel de control</p>
+
+            <nav class="mt-6 space-y-2 text-[14px]">
+              <a
+                href="./adminHome.html"
+                class="flex items-center gap-3 border-l-4 border-primary bg-[#fafafa] px-4 py-4 text-primary-soft"
+              >
+                <span>📊</span>
+                <span class="font-medium">Dashboard</span>
+              </a>
+              <a
+                href="#"
+                class="flex items-center gap-3 px-4 py-4 text-[#555] hover:bg-[#fafafa]"
+              >
+                <span>🗂️</span>
+                <span>Categorías</span>
+              </a>
+              <a
+                href="#"
+                class="flex items-center gap-3 px-4 py-4 text-[#555] hover:bg-[#fafafa]"
+              >
+                <span>🛍️</span>
+                <span>Productos</span>
+              </a>
+              <a
+                href="#"
+                class="flex items-center gap-3 px-4 py-4 text-[#555] hover:bg-[#fafafa]"
+              >
+                <span>📦</span>
+                <span>Pedidos</span>
+              </a>
+            </nav>
+
+            <div class="my-6 border-t border-[#efefef]"></div>
+
+            <a
+              href="../../store/home/home.html"
+              class="flex items-center gap-3 px-4 py-4 text-[#555] hover:bg-[#fafafa]"
+            >
+              <span>🛒</span>
+              <span>Ver Tienda</span>
+            </a>
+          </div>
+        </aside>
+
+        <main class="min-w-0 flex-1 bg-[#f6f7fb] px-8 py-6">
+          <div class="max-w-[1380px]">
+            <h1
+              class="ml-[110px] text-[38px] font-bold leading-tight text-text-strong"
+            >
+              Panel de Administración
+            </h1>
+
+            <section class="mt-8 grid gap-6 pl-[110px] pr-2 lg:grid-cols-4">
+              <article
+                class="min-h-[198px] rounded-xl bg-gradient-to-br from-[#6075d9] to-[#8554cf] px-6 py-6 text-white shadow-[0_8px_20px_rgba(96,117,217,0.18)]"
+              >
+                <p class="text-[18px] font-semibold">🗂️ Categorías</p>
+                <p id="categories-count" class="mt-7 text-[44px] font-light leading-none">0</p>
+                <button
+                  type="button"
+                  class="mt-7 rounded-md bg-white px-5 py-3 text-[13px] font-medium text-[#5f78d7] shadow-sm"
+                >
+                  Gestionar
+                </button>
+              </article>
+
+              <article
+                class="min-h-[198px] rounded-xl bg-gradient-to-br from-[#ff79d2] to-[#ff4f91] px-6 py-6 text-white shadow-[0_8px_20px_rgba(255,79,145,0.18)]"
+              >
+                <p class="text-[18px] font-semibold">🛍️ Productos</p>
+                <p id="products-count" class="mt-7 text-[44px] font-light leading-none">0</p>
+                <button
+                  type="button"
+                  class="mt-7 rounded-md bg-white px-5 py-3 text-[13px] font-medium text-[#ff6aaa] shadow-sm"
+                >
+                  Gestionar
+                </button>
+              </article>
+
+              <article
+                class="min-h-[198px] rounded-xl bg-gradient-to-br from-[#22c5f0] to-[#00a9e9] px-6 py-6 text-white shadow-[0_8px_20px_rgba(0,169,233,0.18)]"
+              >
+                <p class="text-[18px] font-semibold">📦 Pedidos</p>
+                <p id="orders-count" class="mt-7 text-[44px] font-light leading-none">0</p>
+                <button
+                  type="button"
+                  class="mt-7 rounded-md bg-white px-5 py-3 text-[13px] font-medium text-[#1ca8ea] shadow-sm"
+                >
+                  Gestionar
+                </button>
+              </article>
+
+              <article
+                class="min-h-[198px] rounded-xl bg-gradient-to-br from-[#27e38f] to-[#12d7ba] px-6 py-6 text-white shadow-[0_8px_20px_rgba(18,215,186,0.18)]"
+              >
+                <p class="text-[18px] font-semibold">✅ Disponibles</p>
+                <p id="available-products-count" class="mt-7 text-[44px] font-light leading-none">0</p>
+                <button
+                  type="button"
+                  class="mt-7 rounded-md bg-white px-5 py-3 text-[13px] font-medium text-[#17c59d] shadow-sm"
+                >
+                  Gestionar
+                </button>
+              </article>
+            </section>
+
+            <section
+              class="ml-[110px] mt-10 rounded-lg border border-border bg-white px-6 py-6 shadow-[0_4px_14px_rgba(0,0,0,0.05)]"
+            >
+              <p
+                class="flex items-center gap-2 text-[24px] font-semibold text-[#ef7e67]"
+              >
+                <span>📊</span>
+                <span>Resumen Rápido</span>
+              </p>
+              <p class="mt-4 text-[14px] text-[#555]">
+                Cargando estadísticas...
+              </p>
+            </section>
+          </div>
+        </main>
+      </div>
+    </div>
+    <script type="module" src="./adminHome.ts"></script>
+  </body>
+</html>
