@@ -90,13 +90,11 @@ const setPageStatus = (message: string, isError = false) => {
 
 const clearPageStatus = () => {
   categoriesPageStatus.textContent = "";
-  categoriesPageStatus.className = "ml-[110px] mt-4 hidden text-[13px] font-medium";
+  categoriesPageStatus.className =
+    "ml-[110px] mt-4 hidden text-[13px] font-medium";
 };
 
-const openCategoryModal = (
-  mode: CategoryFormMode,
-  category?: Category
-) => {
+const openCategoryModal = (mode: CategoryFormMode, category?: Category) => {
   categoryFormMode = mode;
   selectedCategoryId = category?.id ?? null;
 
@@ -306,7 +304,7 @@ categoriesTableBody.addEventListener("click", (event: MouseEvent) => {
       openCategoryModal("edit", category);
       break;
     case "delete":
-      void deleteCategory(categoryId);
+      deleteCategory(categoryId);
       break;
   }
 });
