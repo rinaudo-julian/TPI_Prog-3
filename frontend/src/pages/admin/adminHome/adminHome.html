@@ -153,18 +153,33 @@
               </article>
             </section>
 
-            <section
-              class="ml-[110px] mt-10 rounded-lg border border-border bg-white px-6 py-6 shadow-[0_4px_14px_rgba(0,0,0,0.05)]"
-            >
-              <p
-                class="flex items-center gap-2 text-[24px] font-semibold text-[#ef7e67]"
-              >
+            <section class="ml-[110px] mt-10 rounded-lg border border-border bg-white px-6 py-6 shadow-[0_4px_14px_rgba(0,0,0,0.05)]">
+              <p class="flex items-center gap-2 text-[24px] font-semibold text-[#ef7e67]">
                 <span>📊</span>
                 <span>Resumen Rápido</span>
               </p>
-              <p class="mt-4 text-[14px] text-[#555]">
-                Cargando estadísticas...
-              </p>
+
+              <div class="mt-6 grid gap-4 lg:grid-cols-4">
+                <article class="rounded-[14px] border-l-[4px] border-[#16c7be] bg-[#f5f7fa] px-5 py-5 shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
+                  <p class="text-[14px] text-[#777]">💰 Ingresos Totales</p>
+                  <p id="quick-summary-revenue" class="mt-4 text-[36px] font-semibold leading-none text-[#12bdb4]">$0.00</p>
+                </article>
+
+                <article class="rounded-[14px] border-l-[4px] border-[#ffd56a] bg-[#f5f7fa] px-5 py-5 shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
+                  <p class="text-[14px] text-[#777]">⏳ Pedidos Pendientes</p>
+                  <p id="quick-summary-pending" class="mt-4 text-[36px] font-semibold leading-none text-[#f0b93f]">0</p>
+                </article>
+
+                <article class="rounded-[14px] border-l-[4px] border-[#68b5ff] bg-[#f5f7fa] px-5 py-5 shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
+                  <p class="text-[14px] text-[#777]">👨‍🍳 En Preparación</p>
+                  <p id="quick-summary-preparing" class="mt-4 text-[36px] font-semibold leading-none text-[#2a8bf2]">0</p>
+                </article>
+
+                <article class="rounded-[14px] border-l-[4px] border-[#24e1c1] bg-[#f5f7fa] px-5 py-5 shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
+                  <p class="text-[14px] text-[#777]">✅ Completados</p>
+                  <p id="quick-summary-completed" class="mt-4 text-[36px] font-semibold leading-none text-[#12bdb4]">0</p>
+                </article>
+              </div>
             </section>
           </div>
         </main>

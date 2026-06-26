@@ -24,6 +24,18 @@ const ordersCount = document.getElementById(
 const availableProductsCount = document.getElementById(
   "available-products-count"
 ) as HTMLParagraphElement;
+const quickSummaryRevenue = document.getElementById(
+  "quick-summary-revenue"
+) as HTMLParagraphElement;
+const quickSummaryPending = document.getElementById(
+  "quick-summary-pending"
+) as HTMLParagraphElement;
+const quickSummaryPreparing = document.getElementById(
+  "quick-summary-preparing"
+) as HTMLParagraphElement;
+const quickSummaryCompleted = document.getElementById(
+  "quick-summary-completed"
+) as HTMLParagraphElement;
 
 if (user) {
   userName.textContent = `${user.nombre}`;
@@ -40,6 +52,8 @@ const fetchJson = async <T>(path: string): Promise<T> => {
   return (await response.json()) as T;
 };
 
+const formatCurrency = (value: number) => `$${value.toFixed(2)}`;
+
 const loadStats = async () => {
   try {
     const [categories, products, orders] = await Promise.all([
@@ -49,16 +63,30 @@ const loadStats = async () => {
     ]);
 
     const activeProducts = products.filter((product) => product.disponible);
+    const pendingOrders = orders.filter((order) => order.estado === "PENDIENTE");
+    const preparingOrders = orders.filter(
+      (order) => order.estado === "CONFIRMADO"
+    );
+    const completedOrders = orders.filter((order) => order.estado === "TERMINADO");
+    const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
 
     categoriesCount.textContent = String(categories.length);
     productsCount.textContent = String(products.length);
     ordersCount.textContent = String(orders.length);
     availableProductsCount.textContent = String(activeProducts.length);
+    quickSummaryRevenue.textContent = formatCurrency(totalRevenue);
+    quickSummaryPending.textContent = String(pendingOrders.length);
+    quickSummaryPreparing.textContent = String(preparingOrders.length);
+    quickSummaryCompleted.textContent = String(completedOrders.length);
   } catch {
     categoriesCount.textContent = "-";
     productsCount.textContent = "-";
     ordersCount.textContent = "-";
     availableProductsCount.textContent = "-";
+    quickSummaryRevenue.textContent = "-";
+    quickSummaryPending.textContent = "-";
+    quickSummaryPreparing.textContent = "-";
+    quickSummaryCompleted.textContent = "-";
   }
 };
 
