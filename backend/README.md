@@ -17,6 +17,17 @@ API Spring Boot con persistencia en H2 en memoria.
 
 La API queda disponible en `http://localhost:8080`.
 
+Luego de levantar el proyecto, podés abrir:
+
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html#`
+- H2 Console: `http://localhost:8080/h2-console/login.jsp`
+
+Datos para ingresar a H2:
+
+- JDBC URL: `jdbc:h2:mem:mydb`
+- User Name: `sa`
+- Password: vacío
+
 ## Notas
 
 - La base H2 es en memoria.
