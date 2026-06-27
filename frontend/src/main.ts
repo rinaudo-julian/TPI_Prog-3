@@ -11,4 +11,4 @@ const authUser: User | null = rawUser ? JSON.parse(rawUser) : null;
   ? replace("login")
   : authUser.rol === Rol.USUARIO
     ? replace("home")
-    : null;
+    : replace("adminHome");
